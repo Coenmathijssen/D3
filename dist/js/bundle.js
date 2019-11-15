@@ -82,10 +82,10 @@ LIMIT 250`;
       })
       .then(fetchedData => {
         let newData = cleanDataYear(fetchedData);
-
-        transformData(newData);
+        let transformedData = transformData(newData);
 
         console.log('data: ', newData);
+        console.log('transformed data: ', transformedData);
 
         svg
           .selectAll('circle')
@@ -114,7 +114,6 @@ LIMIT 250`;
   }
 
   // CLEANING ALL DATA
-
   function cleanDataYear (fetchedData) {
     let newData = fetchedData.map(item => {
       let itemDateValue = item.date.value;
@@ -152,7 +151,6 @@ LIMIT 250`;
           ad: item.date.ad,
           century: item.date.century
         },
-        // country: item.placeName.value,
         geoLocation: {
           long: item.long.value,
           lat: item.lat.value
@@ -247,8 +245,9 @@ LIMIT 250`;
       let splittedArray = itemDateValue.split('-');
       if (splittedArray[0] &&
        splittedArray[1] &&
-        splittedArray[0].match(/^[0-9]+$/) != null &&
-        splittedArray[1].match(/^[0-9]+$/) != null) {
+        // https://stackoverflow.com/questions/14783196/how-to-check-in-javascript-that-a-string-contains-alphabetical-characters
+        splittedArray[0].match(/[a-z]/) === null &&
+        splittedArray[1].match(/[a-z]/) === null) {
         if (splittedArray[1].length === 4) {
           item.date.value = splittedArray[0];
         }
@@ -259,7 +258,12 @@ LIMIT 250`;
     if (itemDateValue.length === 8) {
       let splittedArray = itemDateValue.split('-');
       // Check if the array has 3 items, only contain numbers and if the last item in the array is a year
-      if (splittedArray[0] && splittedArray[1] && splittedArray[2] && splittedArray[0].match(/^[0-9]+$/) != null && splittedArray[1].match(/^[0-9]+$/) != null && splittedArray[2].match(/^[0-9]+$/) != null) {
+      if (splittedArray[0] &&
+        splittedArray[1] &&
+        splittedArray[2] &&
+        splittedArray[0].match(/[a-z]/) === null &&
+        splittedArray[1].match(/[a-z]/) === null &&
+        splittedArray[2].match(/[a-z]/) === null) {
         if (splittedArray[2].length === 4) {
           item.date.value = splittedArray[2];
         }
@@ -270,14 +274,22 @@ LIMIT 250`;
       let splittedArray = itemDateValue.split('-');
       // Here I check if the date has this format: '1900-2000'. I split the two, count them up and divide them by 2.
       // So I only keep one average number
-      if (splittedArray[0] && splittedArray[1] && splittedArray[0].match(/^[0-9]+$/) != null && splittedArray[1].match(/^[0-9]+$/) != null) {
+      if (splittedArray[0] &&
+        splittedArray[1] &&
+        splittedArray[0].match(/[a-z]/) === null &&
+        splittedArray[1].match(/[a-z]/) === null) {
         if (splittedArray[0].length === 4 && splittedArray[1].length === 4) {
           item.date.value = splitStringCalcAverage(itemDateValue);
         }
       }
 
       // Here I check if the date has this format: '02-4-2000' or this format '2-04-2000'. I only keep the year (last four numbers)
-      if (splittedArray[0] && splittedArray[1] && splittedArray[2] && splittedArray[0].match(/^[0-9]+$/) != null && splittedArray[1].match(/^[0-9]+$/) != null && splittedArray[2].match(/^[0-9]+$/) != null) {
+      if (splittedArray[0] &&
+        splittedArray[1] &&
+        splittedArray[2] &&
+        splittedArray[0].match(/[a-z]/) === null &&
+        splittedArray[1].match(/[a-z]/) === null &&
+        splittedArray[2].match(/[a-z]/) === null) {
         if (splittedArray[2].length === 4) {
           item.date.value = splittedArray[2];
         }
@@ -287,11 +299,13 @@ LIMIT 250`;
     // Here I check if the date has this format: '02-05-2000'. I only keep the year (last four numbers)
     if (itemDateValue.length === 10) {
       let splittedArray = itemDateValue.split('-');
-      if (splittedArray[2] && splittedArray[2].length === 4) {
+      if (splittedArray[2] &&
+        splittedArray[2].length === 4) {
         // console.log(item.date.value, splittedArray[2])
         item.date.value = splittedArray[2];
       } // Check if first array item is a year and only contains numbers
-      if (splittedArray[0].length === 4 && splittedArray[0].match(/^[0-9]+$/) != null) {
+      if (splittedArray[0].length === 4 &&
+        splittedArray[0].match(/^[0-9]+$/) != null) {
         item.date.value = splittedArray[0];
       }
     }
@@ -325,7 +339,6 @@ LIMIT 250`;
     transformedData.forEach(year => {
       year.amount = year.values.length;
     });
-    console.log(transformedData);
     return transformedData
   }
 
