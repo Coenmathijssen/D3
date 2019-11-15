@@ -1,0 +1,24 @@
+{
+  "name": "functional-programming",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Coenmathijssen/functional-programming.git"
+  },
+  "author": "Coen Mathijssen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Coenmathijssen/functional-programming/issues"
+  },
+  "homepage": "https://github.com/Coenmathijssen/functional-programming#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "rollup": "^1.26.3"
+  }
+}
