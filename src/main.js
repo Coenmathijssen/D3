@@ -1,6 +1,7 @@
+// Daan helped my rewrite the import to make it work in my code edittor
 import * as d3 from 'd3'
-import { feature } from 'topojson';
-const { select, geoPath, geoNaturalEarth1 } = d3;
+import { feature } from 'topojson'
+const { select, geoPath, geoNaturalEarth1 } = d3
 
 const query = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
@@ -33,9 +34,9 @@ SELECT * WHERE {
      ?cho dct:created ?date .
 }
 GROUP BY ?type
-LIMIT 500`
-//Please use your own endpoint when using this
-const endpoint = "https://api.data.netwerkdigitaalerfgoed.nl/datasets/ivo/NMVW/services/NMVW-04/sparql"
+LIMIT 250`
+
+const endpoint = 'https://api.data.netwerkdigitaalerfgoed.nl/datasets/ivo/NMVW/services/NMVW-04/sparql'
 
 const svg = select('svg')
 const circleDelay = 10
@@ -47,7 +48,7 @@ setupMap()
 drawMap()
 plotLocations()
 
-function setupMap(){
+function setupMap() {
   svg
     .append('path')
     .attr('class', 'rectangle')
@@ -56,7 +57,7 @@ function setupMap(){
 
 function drawMap() {
   d3.json('https://unpkg.com/world-atlas@1.1.4/world/110m.json').then(data => {
-    const countries = feature(data, data.objects.countries);
+    const countries = feature(data, data.objects.countries)
     svg
       .selectAll('path')
       .data(countries.features)
@@ -68,7 +69,7 @@ function drawMap() {
 }
 
 function plotLocations() {
-  fetch(endpoint +"?query="+ encodeURIComponent(query) + "&format=json")
+  fetch(endpoint + '?query=' + encodeURIComponent(query) + '&format=json')
     .then(res => res.json())
     .then(json => {
       let fetchedData = json.results.bindings
@@ -83,40 +84,33 @@ function plotLocations() {
 
       transformData(newData)
 
-
       console.log('data: ', newData)
 
       svg
-      .selectAll('circle')
-      .data(newData)
-      .enter()
-      .append('image')
+        .selectAll('circle')
+        .data(newData)
+        .enter()
+        .append('image')
         .attr('xlink:href', d => d.image)
-      .attr('class', 'circles')
-      .attr('x', function(d) {
-      return projection([d.geoLocation.long, d.geoLocation.lat])[0]
-      })
-      .attr('y', function(d) {
-      return projection([d.geoLocation.long, d.geoLocation.lat])[1]
-      })
-      .attr('r', '0px')
+        .attr('class', 'circles')
+        .attr('x', function (d) {
+          return projection([d.geoLocation.long, d.geoLocation.lat])[0]
+        })
+        .attr('y', function (d) {
+          return projection([d.geoLocation.long, d.geoLocation.lat])[1]
+        })
+        .attr('r', '0px')
         // Opacity is quite heavy on the rendering process so I've turned it off
-        .attr('opacity', .5)
+        .attr('opacity', 0.5)
         .attr('r', '20px')
-      .attr('class', 'img')
-      .transition()
-            .delay(function(d, i) { return i * circleDelay; })
-      .duration(1500)
-      .ease(d3.easeBounce)
-      .attr('r', circleSize+'px')
+        .attr('class', 'img')
+        .transition()
+        .delay(function (d, i) { return i * circleDelay })
+        .duration(1500)
+        .ease(d3.easeBounce)
+        .attr('r', circleSize + 'px')
     })
 }
-
-
-
-
-
-
 
 // CLEANING ALL DATA
 
@@ -323,13 +317,13 @@ function convertToNumber (item) {
 
 // TRANSFORMING THE DATA TO GROUP ON DATE
 // Used the example code of Laurens
-function transformData(data){
+function transformData (data) {
   let transformedData =  d3.nest()
-    .key(function(d) { return d.year; })
-    .entries(data);
+    .key(function (d) { return d.year })
+    .entries(data)
   transformedData.forEach(year => {
-    year.amount = year.values.length;
-  });
+    year.amount = year.values.length
+  })
   console.log(transformedData)
   return transformedData
 }

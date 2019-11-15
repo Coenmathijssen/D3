@@ -3,6 +3,26 @@ body {
   overflow: hidden;
 }
 
+h1, h2 {
+  font-family: lato, arial, sans-serif;
+  text-align: center;
+}
+
+p {
+  font-family: roboto, arial, sans-serif;
+  text-align: center;
+}
+
+.text {
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.svg-container {
+  display: flex;
+  justify-content: center;
+}
+
 .rectangle {
   fill: #B0E0E6;
 }
@@ -16,6 +36,7 @@ body {
 svg {
   width: 960px;
   height: 500px;
+  overflow: visible;
 }
 
 circle {
@@ -25,8 +46,8 @@ circle {
 }
 
 .img {
-  width: 100px;
-  height: 100px;
+  width: 50px;
+  height: 50px;
   opacity: 0.8;
   transition: all .5s ease-in;
 }
