@@ -1,8 +1,9 @@
-import { cleanDataYear } from './cleanDataYear.js'
-
 // Daan helped my rewrite the import to make it work in my code edittor
 import * as d3 from 'd3'
 import { feature } from 'topojson'
+import { cleanDataYear } from './cleanDataYear.js'
+import { transformData } from './transformData.js'
+
 const { select, geoPath, geoNaturalEarth1 } = d3
 
 const query = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -41,8 +42,6 @@ LIMIT 250`
 const endpoint = 'https://api.data.netwerkdigitaalerfgoed.nl/datasets/ivo/NMVW/services/NMVW-04/sparql'
 
 const svg = select('svg')
-const circleDelay = 10
-const circleSize = 8
 const projection = geoNaturalEarth1()
 const pathGenerator = geoPath().projection(projection)
 
@@ -50,14 +49,14 @@ setupMap()
 drawMap()
 plotLocations()
 
-function setupMap() {
+function setupMap () {
   svg
     .append('path')
     .attr('class', 'rectangle')
     .attr('d', pathGenerator({ type: 'Sphere' }))
 }
 
-function drawMap() {
+function drawMap () {
   d3.json('https://unpkg.com/world-atlas@1.1.4/world/110m.json').then(data => {
     const countries = feature(data, data.objects.countries)
     svg
@@ -70,7 +69,7 @@ function drawMap() {
   })
 }
 
-function plotLocations() {
+function plotLocations () {
   fetch(endpoint + '?query=' + encodeURIComponent(query) + '&format=json')
     .then(res => res.json())
     .then(json => {
@@ -88,40 +87,220 @@ function plotLocations() {
       console.log('data: ', newData)
       console.log('transformed data: ', transformedData)
 
-      svg
-        .selectAll('circle')
-        .data(newData)
-        .enter()
-        .append('image')
-        .attr('xlink:href', d => d.image)
-        .attr('class', 'circles')
-        .attr('x', function (d) {
-          return projection([d.geoLocation.long, d.geoLocation.lat])[0]
-        })
-        .attr('y', function (d) {
-          return projection([d.geoLocation.long, d.geoLocation.lat])[1]
-        })
-        .attr('r', '0px')
-        // Opacity is quite heavy on the rendering process so I've turned it off
-        .attr('opacity', 0.5)
-        .attr('r', '20px')
-        .attr('class', 'img')
-        .transition()
-        .delay(function (d, i) { return i * circleDelay })
-        .duration(1500)
-        .ease(d3.easeBounce)
-        .attr('r', circleSize + 'px')
+      // Define the div for the tooltip
+      let div = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+
+      // Run the render() function to render the data points
+      render(svg, newData, div)
     })
 }
 
-// TRANSFORMING THE DATA TO GROUP ON DATE
-// Used the example code of Laurens
-function transformData (data) {
-  let transformedData =  d3.nest()
-    .key(function (d) { return d.year })
-    .entries(data)
-  transformedData.forEach(year => {
-    year.amount = year.values.length
-  })
-  return transformedData
+// Render the data points
+function render (selection, newData, div) {
+  let g = selection
+    .selectAll('rect')
+    .data(newData)
+    .enter()
+    .append('g')
+    .attr('class', 'group')
+
+  // Append rectangles to group and run tooltip functions
+  g.append('rect')
+    .attr('class', 'data-point')
+    .attr('rx', '8')
+    .attr('width', '0')
+    .attr('height', '0')
+    .attr('x', function (d) {
+      return projection([d.geoLocation.long, d.geoLocation.lat])[0]
+    })
+    .attr('y', function (d) {
+      return projection([d.geoLocation.long, d.geoLocation.lat])[1]
+    })
+    .on('mouseover', result => { tooltipIn(result, div) })
+    .on('mouseout', result => { tooltipOut(div) })
+    .transition()
+      .delay((d, i) => { return i * 10 })
+      .duration(1500)
+      .attr('width', '10')
+      .attr('height', '10')
+
+  // Append title to group
+  g.append('foreignObject')
+    .attr('class', 'title')
+    .classed('title-active', false)
+    .html(function (d) {
+      let str = d.title
+      // https://stackoverflow.com/questions/16313903/how-can-i-break-text-in-2-lines-in-d3-js
+      // if (str.length > 20) {
+      //  let txt1 = str.slice(0, 20)
+      //   txt1 += "<br/>"
+      //   let txt2 = str.slice(20, str.length)
+      //   str = txt1+txt2
+      //   console.log(str)
+      // }
+      return str
+    })
+
+  // Append image to group
+  g.append('image')
+    .attr('xlink:href', function (d) { return d.image })
+    .attr('class', 'img')
+    .classed('img-active', false)
+
+
+  // Run function to transform the data point on click
+  g.on('click', (selection, data) => { tranformDataPoint(selection, data) })
+
+  g
+    .exit()
+    .remove()
+
+  // Run function to append a close button to the svg
+  createCloseButton()
+}
+
+// Function to append a close button to the svg
+function createCloseButton () {
+  svg
+  .enter()
+  .append('circle')
+    .attr('class', 'close')
+    .classed('close-active', false)
+    .attr('r', '12')
+    .attr('cx', '595')
+    .attr('cy', '305')
+    .on('click', (selection) => { resetDataPoint(selection) })
+  .append('text')
+    .text('x')
+    .attr('class', 'close-text')
+    .classed('close-active', false)
+    .attr('x', '589')
+    .attr('y', '311')
+    .on('click', (selection) => { resetDataPoint(selection) })
+
+  svg
+    .exit()
+    .remove()
+}
+
+// Display tooltip with title and place name
+function tooltipIn (result, div) {
+  div.html(result.title)
+    .style('left', (d3.event.pageX + 25) + 'px')
+    .style('top', (d3.event.pageY - 20) + 'px')
+  div.transition()
+    .duration(200)
+    .style('opacity', 0.9)
+}
+
+// Bring opacity back to 0
+function tooltipOut (div) {
+  div.transition()
+    .duration(500)
+    .style('opacity', 0)
+}
+
+// Transform the selected data point to make square larger and make text and image appear
+function tranformDataPoint (selected, data) {
+  // https://stackoverflow.com/questions/38297185/get-reference-to-target-of-event-in-d3-in-high-level-listener
+  console.log('clicked item ', d3.event.currentTarget)
+
+  // Resetting all transformations before starting a new one
+  resetDataPoint()
+
+  let selection = d3.select(d3.event.currentTarget)
+    .enter()
+
+  // Tranform data point
+  selection
+    .select('rect')
+    .classed('square-active', true)
+    .transition()
+    .duration(500)
+    .attr('x', '400')
+    .attr('y', '280')
+
+  // Add title
+  selection
+    .select('foreignObject')
+    .classed('title-active', true)
+    .attr('x', '410')
+    .attr('y', '290')
+
+  // Add image
+  selection
+    .select('image')
+    .classed('img-active', true)
+    .attr('x', '410')
+    // Checking if the title will take up 2 lines or 1 line and placing image accordingly
+    .attr('y', function (d) {
+      if (d.title.length > 20) {
+        return 340
+      } else {
+        return 320
+      }
+    })
+
+  // Function to transform the close button
+  transformCloseButton()
+}
+
+// Change class and y and x axis in function
+function transformCloseButton () {
+  // Change class and y and x for the circle element
+  d3.select('circle')
+    .classed('close-active', false)
+    .attr('r', '12')
+    .attr('cx', '595')
+    .attr('cy', '305')
+    .classed('close-active', true)
+    .transition()
+      .duration(300)
+      .attr('cx', '595')
+      .attr('cy', '280')
+      .delay(900)
+
+
+  // Change class and y and x for the text element
+  d3.select('.close-text')
+    .classed('close-active', false)
+    .attr('x', '589')
+    .attr('y', '311')
+    .classed('close-active', true)
+    .transition()
+      .duration(300)
+      .attr('x', '589')
+      .attr('y', '286')
+      .delay(900)
+}
+
+function resetDataPoint () {
+  console.log('running')
+
+  svg.selectAll('rect')
+    .classed('square-active', false)
+    .transition()
+    .duration(500)
+    .attr('x', function (d) {
+      return projection([d.geoLocation.long, d.geoLocation.lat])[0]
+    })
+    .attr('y', function (d) {
+      return projection([d.geoLocation.long, d.geoLocation.lat])[1]
+    })
+
+  // Reset all text elements
+  svg.selectAll('foreignObject')
+    .classed('title-active', false)
+
+  // Reset all image elements
+  svg.selectAll('image')
+    .classed('img-active', false)
+
+  // Reset close button
+  svg.selectAll('circle')
+    .classed('close-active', false)
+  svg.selectAll('.close-text')
+    .classed('close-active', false)
 }

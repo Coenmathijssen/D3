@@ -3,34 +3,14 @@ body {
   overflow: hidden;
 }
 
-h1, h2 {
-  font-family: lato, arial, sans-serif;
-  text-align: center;
-}
-
-p {
-  font-family: roboto, arial, sans-serif;
-  text-align: center;
-}
-
-.text {
-  max-width: 500px;
-  margin: 20px auto;
-}
-
-.svg-container {
-  display: flex;
-  justify-content: center;
-}
-
-.rectangle {
+.sphere {
   fill: #B0E0E6;
 }
 
 .country {
   fill: #FF7373;
   stroke: black;
-  stroke-opacity: 0.5;
+  stroke-opacity: 0.1;
 }
 
 svg {
@@ -39,21 +19,134 @@ svg {
   overflow: visible;
 }
 
-circle {
+.rectangle {
+  fill: #B0E0E6;
+}
+
+rect {
   fill: white;
   stroke: black;
-  stroke-width: .5;
+  stroke-width: 0.5;
+}
+
+.data-point {
+  border: solid 1px white;
+  border-radius: 50%;
+  stroke: black;
+  stroke-width: 1;
+  fill: white;
+  opacity: 0.6;
+  transition: all .2s ease-in-out;
+}
+
+.data-point:hover {
+  cursor: pointer;
+}
+
+.square-active {
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  opacity: 0.9;
+  transition: all .2s ease-in-out;
+}
+
+.title {
+  width: 180px;
+  height: 50px;
+  visibility: hidden;
+  opacity: 0;
+  font-size: 1em;
+  font-family: lato, arial, sans-serif;
+  font-weight: bold;
+}
+
+.title.title-active {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity .2s ease-in-out 1.1s;
 }
 
 .img {
-  width: 50px;
-  height: 50px;
-  opacity: 0.8;
-  transition: all .5s ease-in;
+  width: 160px;
+  height: 130px;
+  visibility: hidden;
+  opacity: 0;
 }
 
-.img:hover {
-  cursor: pointer;
+.img.img-active {
+  visibility: visible;
   opacity: 1;
-  width: 200px;
-  height: 200px;
+  transition: opacity .2s ease-in-out 1.1s;
+}
+
+.close {
+  position: relative;
+  visibility: hidden;
+  opacity: 0;
+  fill: #468499;
+  stroke: black;
+  stroke-width: 1;
+  transition: opacity .2s ease-in-out 0.9s;
+  cursor: pointer;
+}
+
+.close-text {
+  visibility: hidden;
+  opacity: 0;
+  fill: white;
+  font-size: 24px;
+  font-family: lato, arial, sans-serif;
+  transition: opacity .2s ease-in-out 0.9s;
+  cursor: pointer;
+}
+
+.close.close-active {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity .2s ease-in-out 0.9s;
+}
+
+.close-text.close-active {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity .2s ease-in-out 0.9s;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 1em;
+    font-family: lato, arial, sans-serif;
+    font-size: 14px;
+    background: #468499;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+
+div.tooltip:after, div.tooltip:before {
+  right: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+div.tooltip:after {
+  border-color: rgba(136, 183, 213, 0);
+  border-right-color: #468499;
+  border-width: 7px;
+  margin-top: -7px;
+}
+div.tooltip:before {
+  border-color: rgba(194, 225, 245, 0);
+  border-right-color: #468499;
+  border-width: 9px;
+  margin-top: -9px;
+}
