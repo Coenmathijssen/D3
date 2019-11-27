@@ -162,13 +162,13 @@ function render (selection, newData, div) {
 function createCloseButton () {
   console.log('running')
   svgSecond
-  .append('circle')
-    .attr('class', 'close')
-    .classed('close-active', false)
-    .attr('r', '12')
-    .attr('cx', '595')
-    .attr('cy', '305')
-    .on('click', (selection) => { resetDataPoint(selection) })
+    .append('circle')
+      .attr('class', 'close')
+      .classed('close-active', false)
+      .attr('r', '12')
+      .attr('cx', '595')
+      .attr('cy', '305')
+      .on('click', (selection) => { resetDataPoint(selection) })
 
   svgSecond
     .append('text')
@@ -244,7 +244,7 @@ function tranformDataPoint (selected, data) {
 // Change class and y and x axis in function
 function transformCloseButton () {
   // Change class and y and x for the circle element
-  d3.select('circle')
+  d3.select('.close')
     .classed('close-active', false)
     .attr('r', '12')
     .attr('cx', '595')
@@ -297,4 +297,173 @@ function resetDataPoint () {
     .classed('close-active', false)
   svgSecond.selectAll('.close-text')
     .classed('close-active', false)
+}
+
+////////////////// SPINNING WHEEL CODE /////////////////////////
+let padding = { top: 20, right: 40, bottom: 0, left: 0 },
+  w = 500 - padding.left - padding.right,
+  h = 500 - padding.top - padding.bottom,
+  r = Math.min(w, h) / 2,
+  rotation = 0,
+  oldrotation = 0,
+  picked = 100000,
+  oldpick = []
+
+let categories = [
+  { 'label': 'Question 1', 'value': 1, 'question': 'What CSS property is used for specifying the area between the content and its border?' }, // padding
+  { 'label': 'Question 2', 'value': 1, 'question': 'What CSS property is used for changing the font?' }, // font-family
+  { 'label': 'Question 3', 'value': 1, 'question': 'What CSS property is used for changing the color of text?' }, // color
+  { 'label': 'Question 4', 'value': 1, 'question': 'What CSS property is used for changing the boldness of text?' }, // font-weight
+  { 'label': 'Question 5', 'value': 1, 'question': 'What CSS property is used for changing the size of text?' }, // font-size
+  { 'label': 'Question 6', 'value': 1, 'question': 'What CSS property is used for changing the background color of a box?' }, // background-color
+  { 'label': 'Question 7', 'value': 1, 'question': 'Which word is used for specifying an HTML tag that is inside another tag?' }, // nesting
+  { 'label': 'Question 8', 'value': 1, 'question': 'Which side of the box is the third number in: margin:1px 1px 1px 1px; ?' }, // bottom
+  { 'label': 'Question 9', 'value': 1, 'question': 'What are the fonts that dont have serifs at the ends of letters called?' }, // sans-serif
+  { 'label': 'Question 10', 'value': 1, 'question': 'With CSS selectors, what character prefix should one use to specify a class?' }, // period
+  { 'label': 'Question 11', 'value': 1, 'question': 'With CSS selectors, what character prefix should one use to specify an ID?' }, // pound sign
+  { 'label': 'Question 12', 'value': 1, 'question': 'In an HTML document, which tag holds all of the content people see?' }, // <body>
+  { 'label': 'Question 13', 'value': 1, 'question': 'In an HTML document, which tag indicates an unordered list?' }, // <ul>
+  { 'label': 'Question 14', 'value': 1, 'question': 'In an HTML document, which tag indicates the most important heading of your document?' }, // <h1>
+  { 'label': 'Question 15', 'value': 1, 'question': 'What CSS property is used for specifying the area outside a box?' }, // margin
+  { 'label': 'Question 16', 'value': 1, 'question': 'What type of bracket is used for HTML tags?' }, // < >
+  { 'label': 'Question 17', 'value': 1, 'question': 'What type of bracket is used for CSS rules?' }, // { }
+  { 'label': 'Question 18', 'value': 1, 'question': 'Which HTML tag is used for specifying a paragraph?' }, // <p>
+  { 'label': 'Question 19', 'value': 1, 'question': 'What should always be the very first line of code in your HTML?' }, // <!DOCTYPE html>
+  { 'label': 'Question 20', 'value': 1, 'question': 'What HTML tag holds all of the metadata tags for your page?' } // <head>
+]
+
+let svgFirst = d3.select('#chart')
+  .append('svg')
+  .attr('class', 'spinning-wheel')
+  .data([categories])
+  .attr('width', w + padding.left + padding.right)
+  .attr('height', h + padding.top + padding.bottom)
+
+let container = svgFirst.append('g')
+  .attr('class', 'chartholder')
+  .attr('transform', 'translate(' + (w / 2 + padding.left) + ',' + (h / 2 + padding.top) + ')')
+
+let vis = container
+  .append('g')
+
+let pie = d3.pie().sort(null).value(function (d) { return +1 })
+
+// declare an arc generator function
+let arc = d3.arc()
+  .innerRadius(0)
+  .outerRadius(r)
+
+// select paths, use arc generator to draw
+let arcs = vis.selectAll('g.slice')
+  .data(pie)
+  .enter()
+  .append('g')
+  .attr('class', 'slice')
+
+// Check if number is even or uneven
+function evenOrOddColor (index, color1, color2) {
+  console.log(index)
+  if (index % 2 === 0) {
+    return color1
+  } else {
+    return color2
+  }
+}
+
+arcs.append('path')
+  .attr('fill', function (d, i) {
+    return evenOrOddColor(i, '#B0E0E6', '#ff7373')
+  })
+  .attr('d', function (d) { return arc(d) })
+
+// add the text
+arcs.append('text').attr('transform', function (d) {
+  d.innerRadius = 0
+  d.outerRadius = r
+  d.angle = (d.startAngle + d.endAngle) / 2
+  return 'rotate(' + (d.angle * 180 / Math.PI - 90) + ')translate(' + (d.outerRadius - 10) +')'
+})
+  .attr('text-anchor', 'end')
+  .attr('class', 'spinning-wheel-text')
+  .text(function (d, i) {
+    return categories[i].label
+  })
+
+container.on('click', spin)
+
+function spin (d) {
+  container.on('click', null)
+
+  //all slices have been seen, all done
+  console.log('OldPick: ' + oldpick.length, 'Data length: ' + categories.length)
+  if (oldpick.length === categories.length) {
+    console.log('All categories spinned')
+    container.on('click', null)
+    return
+  }
+
+  let ps = 360 / categories.length,
+  pieslice = Math.round(2040 / categories.length),
+  rng = Math.floor((Math.random() * 2040) + 360)
+  rotation = (Math.round(rng / ps) * ps)
+  picked = Math.round(categories.length - (rotation % 360) / ps)
+  picked = picked >= categories.length ? (picked % categories.length) : picked
+
+  console.log('picked: ', picked)
+
+  if (oldpick.indexOf(picked) !== -1) {
+    d3.select(this).call(spin)
+    return
+  } else {
+    oldpick.push(picked)
+  }
+
+  rotation += 90 - Math.round(ps / 2)
+
+  vis.transition()
+    .duration(3000)
+    .attrTween('transform', rotTween)
+    .on('end', function () {
+      // mark question as seen
+      d3.select('.slice:nth-child(' + (picked + 1) + ') path')
+        .attr('fill', '#B7B7B7')
+
+      // populate question
+      d3.select('#question h1')
+        .text(categories[picked].question)
+
+      oldrotation = rotation
+
+      container.on('click', spin)
+    })
+}
+
+// Create an arrow
+svgFirst.append('g')
+  .attr('transform', 'translate(' + (w + padding.left + padding.right) + ',' + ((h / 2) + padding.top) + ')')
+  .append('path')
+  .attr('d', 'M-' + (r * 0.15) + ',0L0,' + (r * 0.05) + 'L0,-' + (r * 0.05) + 'Z')
+  .style({ 'fill': 'black' })
+
+// Create spin circle
+container.append('circle')
+  .attr('cx', 0)
+  .attr('cy', 0)
+  .attr('r', 60)
+  .attr('class', 'circle-middle')
+
+// Create spin text
+container.append('text')
+  .attr('x', 0)
+  .attr('y', 12)
+  .attr('text-anchor', 'middle')
+  .attr('class', 'spin-text')
+  .text('SPIN')
+  .style({ 'font-weight': 'bold', 'font-size': '30px' })
+
+function rotTween (to) {
+  var i = d3.interpolate(oldrotation % 360, rotation)
+  return function (t) {
+    return 'rotate(' + i(t) + ')'
+  }
 }
