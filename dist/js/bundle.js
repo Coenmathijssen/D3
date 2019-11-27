@@ -247,17 +247,14 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
 SELECT * WHERE {
      # alle subcategorieen van sieraden
      <https://hdl.handle.net/20.500.11840/termmaster13201> skos:narrower* ?type .
      ?type skos:prefLabel ?typeName .
-
      # geef alle sieraden in Oceanie, met plaatje en lat/long van de plaats
      ?cho dct:spatial ?place ;
          edm:object ?type ;
          edm:isShownBy ?imageLink .
-
      ?place skos:exactMatch/wgs84:lat ?lat .
      ?place skos:exactMatch/wgs84:long ?long .
      ?cho dc:title ?title .
@@ -269,7 +266,7 @@ LIMIT 250`;
 
   const endpoint = 'https://api.data.netwerkdigitaalerfgoed.nl/datasets/ivo/NMVW/services/NMVW-04/sparql';
 
-  const svg = select('svg');
+  const svgSecond = select('.svg-second');
   const projection = geoNaturalEarth1();
   const pathGenerator = geoPath().projection(projection);
 
@@ -278,7 +275,7 @@ LIMIT 250`;
   plotLocations();
 
   function setupMap () {
-    svg
+    svgSecond
       .append('path')
       .attr('class', 'rectangle')
       .attr('d', pathGenerator({ type: 'Sphere' }));
@@ -287,7 +284,7 @@ LIMIT 250`;
   function drawMap () {
     d3.json('https://unpkg.com/world-atlas@1.1.4/world/110m.json').then(data => {
       const countries = topojson.feature(data, data.objects.countries);
-      svg
+      svgSecond
         .selectAll('path')
         .data(countries.features)
         .enter()
@@ -321,7 +318,7 @@ LIMIT 250`;
           .style('opacity', 0);
 
         // Run the render() function to render the data points
-        render(svg, newData, div);
+        render(svgSecond, newData, div);
       });
   }
 
@@ -331,7 +328,6 @@ LIMIT 250`;
       .selectAll('rect')
       .data(newData)
       .enter()
-
       .append('g')
       .attr('class', 'group');
 
@@ -350,10 +346,10 @@ LIMIT 250`;
       .on('mouseover', result => { tooltipIn(result, div); })
       .on('mouseout', result => { tooltipOut(div); })
       .transition()
-      .delay((d, i) => { return i * 10 })
-      .duration(1500)
-      .attr('width', '10')
-      .attr('height', '10');
+        .delay((d, i) => { return i * 10 })
+        .duration(1500)
+        .attr('width', '10')
+        .attr('height', '10');
 
     // Append title to group
     g.append('foreignObject')
@@ -378,24 +374,38 @@ LIMIT 250`;
       .attr('class', 'img')
       .classed('img-active', false);
 
+
     // Run function to transform the data point on click
     g.on('click', (selection, data) => { tranformDataPoint(); });
 
-    // Append a close button to the group
-    svg.append('circle')
+    g
+      .exit()
+      .remove();
+
+    // Run function to append a close button to the svg
+    createCloseButton();
+  }
+
+  // Function to append a close button to the svg
+  function createCloseButton () {
+    console.log('running');
+    svgSecond
+    .append('circle')
       .attr('class', 'close')
       .classed('close-active', false)
       .attr('r', '12')
       .attr('cx', '595')
       .attr('cy', '305')
       .on('click', (selection) => { resetDataPoint(); });
-    svg.append('text')
-      .text('x')
-      .attr('class', 'close-text')
-      .classed('close-active', false)
-      .attr('x', '589')
-      .attr('y', '311')
-      .on('click', (selection) => { resetDataPoint(); });
+
+    svgSecond
+      .append('text')
+        .text('x')
+        .attr('class', 'close-text')
+        .classed('close-active', false)
+        .attr('x', '589')
+        .attr('y', '311')
+        .on('click', (selection) => { resetDataPoint(); });
   }
 
   // Display tooltip with title and place name
@@ -416,15 +426,17 @@ LIMIT 250`;
   }
 
   // Transform the selected data point to make square larger and make text and image appear
-  function tranformDataPoint (selection, data) {
+  function tranformDataPoint (selected, data) {
     // https://stackoverflow.com/questions/38297185/get-reference-to-target-of-event-in-d3-in-high-level-listener
     console.log('clicked item ', d3.event.currentTarget);
 
     // Resetting all transformations before starting a new one
     resetDataPoint();
 
+    let selection = d3.select(d3.event.currentTarget);
+
     // Tranform data point
-    d3.select(d3.event.currentTarget)
+    selection
       .select('rect')
       .classed('square-active', true)
       .transition()
@@ -433,14 +445,14 @@ LIMIT 250`;
       .attr('y', '280');
 
     // Add title
-    d3.select(d3.event.currentTarget)
+    selection
       .select('foreignObject')
       .classed('title-active', true)
       .attr('x', '410')
       .attr('y', '290');
 
     // Add image
-    d3.select(d3.event.currentTarget)
+    selection
       .select('image')
       .classed('img-active', true)
       .attr('x', '410')
@@ -453,43 +465,43 @@ LIMIT 250`;
         }
       });
 
-    // Add close button
-    svg
-      .select('circle')
+    // Function to transform the close button
+    transformCloseButton();
+  }
+
+  // Change class and y and x axis in function
+  function transformCloseButton () {
+    // Change class and y and x for the circle element
+    d3.select('circle')
       .classed('close-active', false)
       .attr('r', '12')
       .attr('cx', '595')
-      .attr('cy', '305');
+      .attr('cy', '305')
+      .classed('close-active', true)
+      .transition()
+        .duration(300)
+        .attr('cx', '595')
+        .attr('cy', '280')
+        .delay(900);
 
-    svg
-      .select('.close-text')
+
+    // Change class and y and x for the text element
+    d3.select('.close-text')
       .classed('close-active', false)
       .attr('x', '589')
-      .attr('y', '311');
-
-    svg
-      .select('circle')
+      .attr('y', '311')
       .classed('close-active', true)
       .transition()
-      .duration(300)
-      .attr('cx', '595')
-      .attr('cy', '280')
-      .delay(900);
-
-    svg
-      .select('.close-text')
-      .classed('close-active', true)
-      .transition()
-      .duration(300)
-      .attr('x', '589')
-      .attr('y', '286')
-      .delay(900);
+        .duration(300)
+        .attr('x', '589')
+        .attr('y', '286')
+        .delay(900);
   }
 
   function resetDataPoint () {
     console.log('running');
 
-    svg.selectAll('rect')
+    svgSecond.selectAll('rect')
       .classed('square-active', false)
       .transition()
       .duration(500)
@@ -501,17 +513,17 @@ LIMIT 250`;
       });
 
     // Reset all text elements
-    svg.selectAll('foreignObject')
+    svgSecond.selectAll('foreignObject')
       .classed('title-active', false);
 
     // Reset all image elements
-    svg.selectAll('image')
+    svgSecond.selectAll('image')
       .classed('img-active', false);
 
     // Reset close button
-    svg.selectAll('circle')
+    svgSecond.selectAll('circle')
       .classed('close-active', false);
-    svg.selectAll('.close-text')
+    svgSecond.selectAll('.close-text')
       .classed('close-active', false);
   }
 

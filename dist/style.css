@@ -150,3 +150,61 @@ div.tooltip:before {
   border-width: 9px;
   margin-top: -9px;
 }
+
+// WHEEL OF FORTUNE CSS
+
+/*.svg-container {
+  width: 100%;
+  height: 600px;
+}
+
+.spinning-wheel-text {
+    font-family:Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    pointer-events:none;
+}
+#chart{
+    position: relatie;
+    width:500px;
+    height:500px;
+    top:0;
+    left:0;
+}
+#question{
+    position: absolute;
+    width:400px;
+    height:500px;
+    top:170px;
+    left:520px;
+}
+
+#question h1{
+    font-size: 50px;
+    font-weight: bold;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    position: absolute;
+    padding: 0;
+    margin: 0;
+    top:50%;
+    -webkit-transform:translate(0,-50%);
+            transform:translate(0,-50%);
+}
+
+.slice {
+  stroke: black;
+  stroke-width: 0.5px;
+}
+
+.circle-middle {
+  fill: white;
+  stroke-width: 1px;
+  stroke: black;
+  cursor: pointer;
+}
+
+.spin-text {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 30px;
+}*/
+
+

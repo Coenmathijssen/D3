@@ -19,17 +19,14 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX gn: <http://www.geonames.org/ontology#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
 SELECT * WHERE {
      # alle subcategorieen van sieraden
      <https://hdl.handle.net/20.500.11840/termmaster13201> skos:narrower* ?type .
      ?type skos:prefLabel ?typeName .
-
      # geef alle sieraden in Oceanie, met plaatje en lat/long van de plaats
      ?cho dct:spatial ?place ;
          edm:object ?type ;
          edm:isShownBy ?imageLink .
-
      ?place skos:exactMatch/wgs84:lat ?lat .
      ?place skos:exactMatch/wgs84:long ?long .
      ?cho dc:title ?title .
@@ -41,7 +38,7 @@ LIMIT 250`
 
 const endpoint = 'https://api.data.netwerkdigitaalerfgoed.nl/datasets/ivo/NMVW/services/NMVW-04/sparql'
 
-const svg = select('svg')
+const svgSecond = select('.svg-second')
 const projection = geoNaturalEarth1()
 const pathGenerator = geoPath().projection(projection)
 
@@ -50,7 +47,7 @@ drawMap()
 plotLocations()
 
 function setupMap () {
-  svg
+  svgSecond
     .append('path')
     .attr('class', 'rectangle')
     .attr('d', pathGenerator({ type: 'Sphere' }))
@@ -59,7 +56,7 @@ function setupMap () {
 function drawMap () {
   d3.json('https://unpkg.com/world-atlas@1.1.4/world/110m.json').then(data => {
     const countries = feature(data, data.objects.countries)
-    svg
+    svgSecond
       .selectAll('path')
       .data(countries.features)
       .enter()
@@ -93,7 +90,7 @@ function plotLocations () {
         .style('opacity', 0)
 
       // Run the render() function to render the data points
-      render(svg, newData, div)
+      render(svgSecond, newData, div)
     })
 }
 
@@ -163,8 +160,8 @@ function render (selection, newData, div) {
 
 // Function to append a close button to the svg
 function createCloseButton () {
-  svg
-  .enter()
+  console.log('running')
+  svgSecond
   .append('circle')
     .attr('class', 'close')
     .classed('close-active', false)
@@ -172,17 +169,15 @@ function createCloseButton () {
     .attr('cx', '595')
     .attr('cy', '305')
     .on('click', (selection) => { resetDataPoint(selection) })
-  .append('text')
-    .text('x')
-    .attr('class', 'close-text')
-    .classed('close-active', false)
-    .attr('x', '589')
-    .attr('y', '311')
-    .on('click', (selection) => { resetDataPoint(selection) })
 
-  svg
-    .exit()
-    .remove()
+  svgSecond
+    .append('text')
+      .text('x')
+      .attr('class', 'close-text')
+      .classed('close-active', false)
+      .attr('x', '589')
+      .attr('y', '311')
+      .on('click', (selection) => { resetDataPoint(selection) })
 }
 
 // Display tooltip with title and place name
@@ -211,7 +206,6 @@ function tranformDataPoint (selected, data) {
   resetDataPoint()
 
   let selection = d3.select(d3.event.currentTarget)
-    .enter()
 
   // Tranform data point
   selection
@@ -279,7 +273,7 @@ function transformCloseButton () {
 function resetDataPoint () {
   console.log('running')
 
-  svg.selectAll('rect')
+  svgSecond.selectAll('rect')
     .classed('square-active', false)
     .transition()
     .duration(500)
@@ -291,16 +285,16 @@ function resetDataPoint () {
     })
 
   // Reset all text elements
-  svg.selectAll('foreignObject')
+  svgSecond.selectAll('foreignObject')
     .classed('title-active', false)
 
   // Reset all image elements
-  svg.selectAll('image')
+  svgSecond.selectAll('image')
     .classed('img-active', false)
 
   // Reset close button
-  svg.selectAll('circle')
+  svgSecond.selectAll('circle')
     .classed('close-active', false)
-  svg.selectAll('.close-text')
+  svgSecond.selectAll('.close-text')
     .classed('close-active', false)
 }
