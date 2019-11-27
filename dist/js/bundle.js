@@ -3,11 +3,12 @@
 
   // CLEANING ALL DATA
   function cleanDataYear (fetchedData) {
+    console.log('oldData: ', fetchedData);
     let newData = fetchedData.map(item => {
       let itemDateValue = item.date.value;
 
       // Transform all elements to uppercase
-      item.date.value = itemDateValue.toUpperCase();
+      item.date.value = item.date.value.toUpperCase();
 
       // Replace all bc and ad with an empty string and turn the corresponding properties into true
       item = replaceChrist(item);
@@ -19,10 +20,11 @@
       item = replaceCenturies(item);
 
       // Replace all left letters with an empty string
-      itemDateValue = replaceWithWhichString(itemDateValue, /([a-zA-Z ])/g);
+      item.date.value = replaceWithWhichString(item.date.value, /([a-zA-Z ])/g);
 
       // Clean data if they have this format: 12-03-1990, or this format: 1900-2000. Returns the (average) year
       item = convertToYear(item);
+
 
       // Convert all strings to numbers
       item = convertToNumber(item);
@@ -33,6 +35,7 @@
         title: item.title.value,
         description: item.desc.value,
         year: item.date.value,
+        century: item.date.value,
         dateInfo: {
           type: item.date.type,
           bc: item.date.bc,
@@ -47,18 +50,23 @@
     });
 
     // delete all items which don't fit the format by now
-    const finalArray = deleteUnformattedData(newData);
+    let finalArray = deleteUnformattedData(newData);
+    // finalArray.forEach(item => { console.log(item.year) })
 
-    // finalArray.forEach(item => console.log('items: ', item.date.value))
+    finalArray = convertToCentury(finalArray);
+
+    console.log('newData: ', finalArray);
 
     return finalArray
   }
 
+
+
   function deleteUnformattedData (array) {
     const finalArray = array.filter(item => {
-      if (item.year.toString().length === 4) {
-        return item
-      }
+      if (item.year.toString().length === 4 && item.year <= 2019 && item.year >= 0) {
+              return item
+          }
     });
     return finalArray
   }
@@ -94,6 +102,27 @@
     itemDateValue = replaceWithWhichString(itemDateValue, /\s/g);
     itemDateValue = replaceWithWhichString(itemDateValue, /\?/g);
     itemDateValue = replaceWithWhichString(itemDateValue, /\//g, '-');
+
+    itemDateValue.replace("VOOR", "")
+                 .replace("NA", "")
+                 .replace("OF", "")
+                 .replace("EERDER", "")
+                 .replace("INOF", "")
+                 .replace("INVOOR", "")
+                 .replace("VOORIN", "")
+                 .replace("INOPVOOR", "")
+                 .replace("OFIN", "")
+                 .replace("EIND", "")
+                 .replace("BEGIN", "")
+                 .replace("MOGELIJK", "")
+                 .replace("ORGINEEL", "")
+                 .replace("OFEERDER", "")
+                 .replace("CA.", "")
+                 .replace("CA", "")
+                 .replace("EEUW", "")
+                 .replace("HELFT", " ")
+                 .replace("LAATSTE", "")
+                 .replace("KWART", "");
 
     return itemDateValue
   }
@@ -213,9 +242,23 @@
 
   // Convert all left strings to number
   function convertToNumber (item) {
-    let itemDateValue = item.date.value;
-    item.date.value = parseInt(itemDateValue);
+    item.date.value = parseInt(item.date.value);
     return item
+  }
+
+  function convertToCentury (newData) {
+    newData.forEach(item => {
+      let string = item.year.toString();
+      item.century = splitValue(string, 2);
+      console.log(item.century);
+      string = parseInt(string);
+      return string
+    });
+    return newData
+  }
+
+  function splitValue (value, index) {
+    return value.substring(0, index) + '00'
   }
 
   // TRANSFORMING THE DATA TO GROUP ON DATE
@@ -390,6 +433,7 @@ LIMIT 250`;
   function createCloseButton () {
     console.log('running');
     svgSecond
+      .enter()
       .append('circle')
         .attr('class', 'close')
         .classed('close-active', false)
@@ -499,8 +543,6 @@ LIMIT 250`;
   }
 
   function resetDataPoint () {
-    console.log('running');
-
     svgSecond.selectAll('rect')
       .classed('square-active', false)
       .transition()
@@ -590,7 +632,6 @@ LIMIT 250`;
 
   // Check if number is even or uneven
   function evenOrOddColor (index, color1, color2) {
-    console.log(index);
     if (index % 2 === 0) {
       return color1
     } else {
@@ -685,8 +726,7 @@ LIMIT 250`;
     .attr('y', 12)
     .attr('text-anchor', 'middle')
     .attr('class', 'spin-text')
-    .text('SPIN')
-    .style({ 'font-weight': 'bold', 'font-size': '30px' });
+    .text('SPIN');
 
   function rotTween (to) {
     var i = d3.interpolate(oldrotation % 360, rotation);

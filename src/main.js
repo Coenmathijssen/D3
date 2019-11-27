@@ -162,6 +162,7 @@ function render (selection, newData, div) {
 function createCloseButton () {
   console.log('running')
   svgSecond
+    .enter()
     .append('circle')
       .attr('class', 'close')
       .classed('close-active', false)
@@ -271,8 +272,6 @@ function transformCloseButton () {
 }
 
 function resetDataPoint () {
-  console.log('running')
-
   svgSecond.selectAll('rect')
     .classed('square-active', false)
     .transition()
@@ -362,7 +361,6 @@ let arcs = vis.selectAll('g.slice')
 
 // Check if number is even or uneven
 function evenOrOddColor (index, color1, color2) {
-  console.log(index)
   if (index % 2 === 0) {
     return color1
   } else {
@@ -459,7 +457,6 @@ container.append('text')
   .attr('text-anchor', 'middle')
   .attr('class', 'spin-text')
   .text('SPIN')
-  .style({ 'font-weight': 'bold', 'font-size': '30px' })
 
 function rotTween (to) {
   var i = d3.interpolate(oldrotation % 360, rotation)

@@ -1,10 +1,11 @@
 // CLEANING ALL DATA
 export function cleanDataYear (fetchedData) {
+  console.log('oldData: ', fetchedData)
   let newData = fetchedData.map(item => {
     let itemDateValue = item.date.value
 
     // Transform all elements to uppercase
-    item.date.value = itemDateValue.toUpperCase()
+    item.date.value = item.date.value.toUpperCase()
 
     // Replace all bc and ad with an empty string and turn the corresponding properties into true
     item = replaceChrist(item)
@@ -16,10 +17,11 @@ export function cleanDataYear (fetchedData) {
     item = replaceCenturies(item)
 
     // Replace all left letters with an empty string
-    itemDateValue = replaceWithWhichString(itemDateValue, /([a-zA-Z ])/g)
+    item.date.value = replaceWithWhichString(item.date.value, /([a-zA-Z ])/g)
 
     // Clean data if they have this format: 12-03-1990, or this format: 1900-2000. Returns the (average) year
     item = convertToYear(item)
+
 
     // Convert all strings to numbers
     item = convertToNumber(item)
@@ -30,6 +32,7 @@ export function cleanDataYear (fetchedData) {
       title: item.title.value,
       description: item.desc.value,
       year: item.date.value,
+      century: item.date.value,
       dateInfo: {
         type: item.date.type,
         bc: item.date.bc,
@@ -44,18 +47,23 @@ export function cleanDataYear (fetchedData) {
   })
 
   // delete all items which don't fit the format by now
-  const finalArray = deleteUnformattedData(newData)
+  let finalArray = deleteUnformattedData(newData)
+  // finalArray.forEach(item => { console.log(item.year) })
 
-  // finalArray.forEach(item => console.log('items: ', item.date.value))
+  finalArray = convertToCentury(finalArray)
+
+  console.log('newData: ', finalArray)
 
   return finalArray
 }
 
+
+
 function deleteUnformattedData (array) {
   const finalArray = array.filter(item => {
-    if (item.year.toString().length === 4) {
-      return item
-    }
+    if (item.year.toString().length === 4 && item.year <= 2019 && item.year >= 0) {
+            return item
+        }
   })
   return finalArray
 }
@@ -91,6 +99,27 @@ function cleanCharacter (item) {
   itemDateValue = replaceWithWhichString(itemDateValue, /\s/g)
   itemDateValue = replaceWithWhichString(itemDateValue, /\?/g)
   itemDateValue = replaceWithWhichString(itemDateValue, /\//g, '-')
+
+  itemDateValue.replace("VOOR", "")
+               .replace("NA", "")
+               .replace("OF", "")
+               .replace("EERDER", "")
+               .replace("INOF", "")
+               .replace("INVOOR", "")
+               .replace("VOORIN", "")
+               .replace("INOPVOOR", "")
+               .replace("OFIN", "")
+               .replace("EIND", "")
+               .replace("BEGIN", "")
+               .replace("MOGELIJK", "")
+               .replace("ORGINEEL", "")
+               .replace("OFEERDER", "")
+               .replace("CA.", "")
+               .replace("CA", "")
+               .replace("EEUW", "")
+               .replace("HELFT", " ")
+               .replace("LAATSTE", "")
+               .replace("KWART", "")
 
   return itemDateValue
 }
@@ -210,7 +239,21 @@ function average (a, b) {
 
 // Convert all left strings to number
 function convertToNumber (item) {
-  let itemDateValue = item.date.value
-  item.date.value = parseInt(itemDateValue)
+  item.date.value = parseInt(item.date.value)
   return item
+}
+
+function convertToCentury (newData) {
+  newData.forEach(item => {
+    let string = item.year.toString()
+    item.century = splitValue(string, 2)
+    console.log(item.century)
+    string = parseInt(string)
+    return string
+  })
+  return newData
+}
+
+function splitValue (value, index) {
+  return value.substring(0, index) + '00'
 }
