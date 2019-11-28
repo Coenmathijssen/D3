@@ -4,10 +4,10 @@ import * as d3 from 'd3'
 // Used the example code of Laurens
 export function transformData (data) {
   let transformedData =  d3.nest()
-    .key(function (d) { return d.year })
+    .key(function (d) { return d.century })
     .entries(data)
-  transformedData.forEach(year => {
-    year.amount = year.values.length
+  transformedData.forEach(century => {
+    century.amount = century.values.length
   })
   return transformedData
 }

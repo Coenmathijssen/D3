@@ -48,7 +48,6 @@ export function cleanDataYear (fetchedData) {
 
   // delete all items which don't fit the format by now
   let finalArray = deleteUnformattedData(newData)
-  // finalArray.forEach(item => { console.log(item.year) })
 
   finalArray = convertToCentury(finalArray)
 
@@ -146,7 +145,6 @@ function replaceCenturies (item) {
     itemDate.century = false
   }
   item.date = itemDate
-  // console.log(itemDate)
   return item
 }
 
@@ -215,7 +213,6 @@ function convertToYear (item) {
     let splittedArray = itemDateValue.split('-')
     if (splittedArray[2] &&
       splittedArray[2].length === 4) {
-      // console.log(item.date.value, splittedArray[2])
       item.date.value = splittedArray[2]
     } // Check if first array item is a year and only contains numbers
     if (splittedArray[0].length === 4 &&
@@ -247,7 +244,6 @@ function convertToCentury (newData) {
   newData.forEach(item => {
     let string = item.year.toString()
     item.century = splitValue(string, 2)
-    console.log(item.century)
     string = parseInt(string)
     return string
   })

@@ -6,6 +6,13 @@ import { transformData } from './transformData.js'
 
 const { select, geoPath, geoNaturalEarth1 } = d3
 
+// Define the div for the tooltip
+let div = d3.select('body').append('div')
+  .attr('class', 'tooltip')
+  .style('opacity', 0)
+
+let transformedData = null
+
 const query = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX dct: <http://purl.org/dc/terms/>
@@ -79,15 +86,9 @@ function plotLocations () {
     })
     .then(fetchedData => {
       let newData = cleanDataYear(fetchedData)
-      let transformedData = transformData(newData)
+      transformedData = transformData(newData)
 
-      console.log('data: ', newData)
       console.log('transformed data: ', transformedData)
-
-      // Define the div for the tooltip
-      let div = d3.select('body').append('div')
-        .attr('class', 'tooltip')
-        .style('opacity', 0)
 
       // Run the render() function to render the data points
       render(svgSecond, newData, div)
@@ -96,15 +97,32 @@ function plotLocations () {
 
 // Render the data points
 function render (selection, newData, div) {
-  let g = selection
-    .selectAll('rect')
+  // ENTER
+  let rects = selection
+    .selectAll('.data-point')
     .data(newData)
+    console.log('data: ', newData)
+
+  rects
+    .attr('x', function (d) {
+      return projection([d.geoLocation.long, d.geoLocation.lat])[0]
+    })
+    .attr('y', function (d) {
+      return projection([d.geoLocation.long, d.geoLocation.lat])[1]
+    })
+    .on('mouseover', result => { tooltipIn(result, div) })
+    .on('mouseout', result => { tooltipOut(div) })
+
+  let newRects = rects
     .enter()
     .append('g')
     .attr('class', 'group')
 
+  console.log('g: ', newRects)
+
+  // UPDATE
   // Append rectangles to group and run tooltip functions
-  g.append('rect')
+  newRects.append('rect')
     .attr('class', 'data-point')
     .attr('rx', '8')
     .attr('width', '0')
@@ -124,45 +142,35 @@ function render (selection, newData, div) {
       .attr('height', '10')
 
   // Append title to group
-  g.append('foreignObject')
+  newRects.append('foreignObject')
     .attr('class', 'title')
     .classed('title-active', false)
     .html(function (d) {
-      let str = d.title
-      // https://stackoverflow.com/questions/16313903/how-can-i-break-text-in-2-lines-in-d3-js
-      // if (str.length > 20) {
-      //  let txt1 = str.slice(0, 20)
-      //   txt1 += "<br/>"
-      //   let txt2 = str.slice(20, str.length)
-      //   str = txt1+txt2
-      //   console.log(str)
-      // }
-      return str
+      return d.title
     })
 
   // Append image to group
-  g.append('image')
+  newRects.append('image')
     .attr('xlink:href', function (d) { return d.image })
     .attr('class', 'img')
     .classed('img-active', false)
 
-
   // Run function to transform the data point on click
-  g.on('click', (selection, data) => { tranformDataPoint(selection, data) })
-
-  g
-    .exit()
-    .remove()
+  newRects.on('click', (selection, data) => { tranformDataPoint(selection, data) })
+  rects.on('click', (selection, data) => { tranformDataPoint(selection, data) })
 
   // Run function to append a close button to the svg
   createCloseButton()
+
+  // EXIT
+  rects
+    .exit()
+    .remove()
 }
 
 // Function to append a close button to the svg
 function createCloseButton () {
-  console.log('running')
   svgSecond
-    .enter()
     .append('circle')
       .attr('class', 'close')
       .classed('close-active', false)
@@ -202,9 +210,10 @@ function tooltipOut (div) {
 function tranformDataPoint (selected, data) {
   // https://stackoverflow.com/questions/38297185/get-reference-to-target-of-event-in-d3-in-high-level-listener
   console.log('clicked item ', d3.event.currentTarget)
+  console.log('GEO clicked item before ', d3.event.currentTarget.geoLocation)
 
   // Resetting all transformations before starting a new one
-  resetDataPoint()
+  resetDataPoint(data)
 
   let selection = d3.select(d3.event.currentTarget)
 
@@ -271,16 +280,16 @@ function transformCloseButton () {
       .delay(900)
 }
 
-function resetDataPoint () {
-  svgSecond.selectAll('rect')
+function resetDataPoint (data) {
+  svgSecond.selectAll('.data-point')
     .classed('square-active', false)
     .transition()
     .duration(500)
-    .attr('x', function (d) {
-      return projection([d.geoLocation.long, d.geoLocation.lat])[0]
+    .attr('x', function (data) {
+      return projection([data.geoLocation.long, data.geoLocation.lat])[0]
     })
-    .attr('y', function (d) {
-      return projection([d.geoLocation.long, d.geoLocation.lat])[1]
+    .attr('y', function (data) {
+      return projection([data.geoLocation.long, data.geoLocation.lat])[1]
     })
 
   // Reset all text elements
@@ -299,9 +308,15 @@ function resetDataPoint () {
 }
 
 ////////////////// SPINNING WHEEL CODE /////////////////////////
-let padding = { top: 20, right: 40, bottom: 0, left: 0 },
-  w = 500 - padding.left - padding.right,
-  h = 500 - padding.top - padding.bottom,
+let padding =
+{
+  top: 20,
+  right: 40,
+  bottom: 0,
+  left: 0
+},
+  w = 350 - padding.left - padding.right,
+  h = 350 - padding.top - padding.bottom,
   r = Math.min(w, h) / 2,
   rotation = 0,
   oldrotation = 0,
@@ -309,26 +324,10 @@ let padding = { top: 20, right: 40, bottom: 0, left: 0 },
   oldpick = []
 
 let categories = [
-  { 'label': 'Question 1', 'value': 1, 'question': 'What CSS property is used for specifying the area between the content and its border?' }, // padding
-  { 'label': 'Question 2', 'value': 1, 'question': 'What CSS property is used for changing the font?' }, // font-family
-  { 'label': 'Question 3', 'value': 1, 'question': 'What CSS property is used for changing the color of text?' }, // color
-  { 'label': 'Question 4', 'value': 1, 'question': 'What CSS property is used for changing the boldness of text?' }, // font-weight
-  { 'label': 'Question 5', 'value': 1, 'question': 'What CSS property is used for changing the size of text?' }, // font-size
-  { 'label': 'Question 6', 'value': 1, 'question': 'What CSS property is used for changing the background color of a box?' }, // background-color
-  { 'label': 'Question 7', 'value': 1, 'question': 'Which word is used for specifying an HTML tag that is inside another tag?' }, // nesting
-  { 'label': 'Question 8', 'value': 1, 'question': 'Which side of the box is the third number in: margin:1px 1px 1px 1px; ?' }, // bottom
-  { 'label': 'Question 9', 'value': 1, 'question': 'What are the fonts that dont have serifs at the ends of letters called?' }, // sans-serif
-  { 'label': 'Question 10', 'value': 1, 'question': 'With CSS selectors, what character prefix should one use to specify a class?' }, // period
-  { 'label': 'Question 11', 'value': 1, 'question': 'With CSS selectors, what character prefix should one use to specify an ID?' }, // pound sign
-  { 'label': 'Question 12', 'value': 1, 'question': 'In an HTML document, which tag holds all of the content people see?' }, // <body>
-  { 'label': 'Question 13', 'value': 1, 'question': 'In an HTML document, which tag indicates an unordered list?' }, // <ul>
-  { 'label': 'Question 14', 'value': 1, 'question': 'In an HTML document, which tag indicates the most important heading of your document?' }, // <h1>
-  { 'label': 'Question 15', 'value': 1, 'question': 'What CSS property is used for specifying the area outside a box?' }, // margin
-  { 'label': 'Question 16', 'value': 1, 'question': 'What type of bracket is used for HTML tags?' }, // < >
-  { 'label': 'Question 17', 'value': 1, 'question': 'What type of bracket is used for CSS rules?' }, // { }
-  { 'label': 'Question 18', 'value': 1, 'question': 'Which HTML tag is used for specifying a paragraph?' }, // <p>
-  { 'label': 'Question 19', 'value': 1, 'question': 'What should always be the very first line of code in your HTML?' }, // <!DOCTYPE html>
-  { 'label': 'Question 20', 'value': 1, 'question': 'What HTML tag holds all of the metadata tags for your page?' } // <head>
+  { 'year': '11e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[3].values, div) } }, // padding
+  { 'year': '12e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[1].values, div) } },
+  { 'year': '18e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[2].values, div) } },
+  { 'year': '19e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[0].values, div) } }
 ]
 
 let svgFirst = d3.select('#chart')
@@ -384,7 +383,7 @@ arcs.append('text').attr('transform', function (d) {
   .attr('text-anchor', 'end')
   .attr('class', 'spinning-wheel-text')
   .text(function (d, i) {
-    return categories[i].label
+    return categories[i].year
   })
 
 container.on('click', spin)
@@ -392,14 +391,17 @@ container.on('click', spin)
 function spin (d) {
   container.on('click', null)
 
-  //all slices have been seen, all done
+  // Check the previous pick and length of the categories
   console.log('OldPick: ' + oldpick.length, 'Data length: ' + categories.length)
+
+  //all categories have been spinned
   if (oldpick.length === categories.length) {
     console.log('All categories spinned')
     container.on('click', null)
     return
   }
 
+  // Calculate the rotation considering the previous rotation
   let ps = 360 / categories.length,
   pieslice = Math.round(2040 / categories.length),
   rng = Math.floor((Math.random() * 2040) + 360)
@@ -418,20 +420,27 @@ function spin (d) {
 
   rotation += 90 - Math.round(ps / 2)
 
+  // Give it a rotation
   vis.transition()
     .duration(3000)
     .attrTween('transform', rotTween)
     .on('end', function () {
-      // mark question as seen
+      // mark category as seen
       d3.select('.slice:nth-child(' + (picked + 1) + ') path')
         .attr('fill', '#B7B7B7')
 
-      // populate question
-      d3.select('#question h1')
-        .text(categories[picked].question)
 
+      // Display category in browser
+      d3.select('#question h1')
+        .text(categories[picked].year)
+
+      // Run function the update function
+      categories[picked].run()
+
+      // Set old rotation as current one
       oldrotation = rotation
 
+      // Spin when clicked on the container
       container.on('click', spin)
     })
 }
@@ -447,7 +456,7 @@ svgFirst.append('g')
 container.append('circle')
   .attr('cx', 0)
   .attr('cy', 0)
-  .attr('r', 60)
+  .attr('r', 40)
   .attr('class', 'circle-middle')
 
 // Create spin text
@@ -458,6 +467,7 @@ container.append('text')
   .attr('class', 'spin-text')
   .text('SPIN')
 
+// Rotate animation
 function rotTween (to) {
   var i = d3.interpolate(oldrotation % 360, rotation)
   return function (t) {

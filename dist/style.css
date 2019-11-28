@@ -170,8 +170,8 @@ div.tooltip:before {
 
 #chart {
   position: relatie;
-  width:500px;
-  height:500px;
+  width: 500px;
+  height: 380px;
   top:0;
   left:0;
 }
@@ -179,19 +179,19 @@ div.tooltip:before {
 #question {
   position: absolute;
   width: 400px;
-  height: 500px;
+  height: 380px;
   top: 170px;
   left: 55%;
 }
 
-#question h1{
+#question h1 {
   font-size: 50px;
   font-weight: bold;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   position: absolute;
   padding: 0;
   margin: 0;
-  top:50%;
+  top: 39%;
   -webkit-transform:translate(0,-50%);
   transform:translate(0,-50%);
 }
@@ -210,18 +210,18 @@ div.tooltip:before {
 
 .spin-text {
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 30px;
+  font-size: 24px;
   font-weight: bold;
   cursor: pointer;
 }
 
-.svg-container.second {
-  margin-top: 10vh;
-}
+/*.svg-container.second {
+  margin-top: -20vh;
+}*/
 
 .svg-container.first .spinning-wheel {
     position: absolute;
-    left: 50%;
+    left: 63%;
     transform: translateX(-50%);
 }
 
