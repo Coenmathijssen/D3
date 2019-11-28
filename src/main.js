@@ -99,7 +99,7 @@ function plotLocations () {
 function render (selection, newData, div) {
   // ENTER
   let rects = selection
-    .selectAll('.data-point')
+    .selectAll('rect')
     .data(newData)
     console.log('data: ', newData)
 
@@ -163,7 +163,7 @@ function render (selection, newData, div) {
   createCloseButton()
 
   // EXIT
-  rects
+  newRects
     .exit()
     .remove()
 }
@@ -281,7 +281,7 @@ function transformCloseButton () {
 }
 
 function resetDataPoint (data) {
-  svgSecond.selectAll('.data-point')
+  svgSecond.selectAll('rect')
     .classed('square-active', false)
     .transition()
     .duration(500)
