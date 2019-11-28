@@ -34,10 +34,11 @@ svg {
   fill: #B0E0E6;
 }
 
-rect {
+.item-container {
   fill: white;
   stroke: black;
-  stroke-width: 0.5;
+  stroke-width: 1;
+  width: 200px;
 }
 
 .data-point {

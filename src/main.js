@@ -97,14 +97,19 @@ function plotLocations () {
 
 // Render the data points
 function render (selection, newData, div) {
+   // Run function to append the item container to the svg
+  createItemContainer()
+
   // ENTER
   let rects = selection
-    .selectAll('rect')
+    .selectAll('.data-point')
     .data(newData)
     console.log('data: ', newData)
 
-  rects
-    .attr('x', function (d) {
+  rects.enter()
+  .append('g')
+  .attr('class', 'group')
+  .attr('x', function (d) {
       return projection([d.geoLocation.long, d.geoLocation.lat])[0]
     })
     .attr('y', function (d) {
@@ -113,16 +118,12 @@ function render (selection, newData, div) {
     .on('mouseover', result => { tooltipIn(result, div) })
     .on('mouseout', result => { tooltipOut(div) })
 
-  let newRects = rects
-    .enter()
-    .append('g')
-    .attr('class', 'group')
-
-  console.log('g: ', newRects)
+let groups = d3.selectAll('.group')
+  .data(newData)
 
   // UPDATE
   // Append rectangles to group and run tooltip functions
-  newRects.append('rect')
+  groups.append('rect')
     .attr('class', 'data-point')
     .attr('rx', '8')
     .attr('width', '0')
@@ -142,7 +143,7 @@ function render (selection, newData, div) {
       .attr('height', '10')
 
   // Append title to group
-  newRects.append('foreignObject')
+  groups.append('foreignObject')
     .attr('class', 'title')
     .classed('title-active', false)
     .html(function (d) {
@@ -150,22 +151,36 @@ function render (selection, newData, div) {
     })
 
   // Append image to group
-  newRects.append('image')
+  groups.append('image')
     .attr('xlink:href', function (d) { return d.image })
     .attr('class', 'img')
     .classed('img-active', false)
 
-  // Run function to transform the data point on click
-  newRects.on('click', (selection, data) => { tranformDataPoint(selection, data) })
-  rects.on('click', (selection, data) => { tranformDataPoint(selection, data) })
+  console.log('Rects: ', rects)
+
+    // Run function to transform the data point on click
+  groups.on('click', (selection, data) => { tranformDataPoint(selection, data) })
+  groups.on('change', (selection, data) => { tranformDataPoint(selection, data) })
+
+
+  // EXIT
+  rects
+    .exit()
+    .remove()
 
   // Run function to append a close button to the svg
   createCloseButton()
+}
 
-  // EXIT
-  newRects
-    .exit()
-    .remove()
+function createItemContainer () {
+  svgSecond
+    .append('rect')
+    .attr('class', 'item-container')
+    .classed('container-active', false)
+    .attr('x', '400')
+    .attr('y', '270')
+    .attr('rx', '8')
+    .attr('height', '0')
 }
 
 // Function to append a close button to the svg
@@ -207,34 +222,35 @@ function tooltipOut (div) {
 }
 
 // Transform the selected data point to make square larger and make text and image appear
-function tranformDataPoint (selected, data) {
+function tranformDataPoint (selection, data) {
   // https://stackoverflow.com/questions/38297185/get-reference-to-target-of-event-in-d3-in-high-level-listener
   console.log('clicked item ', d3.event.currentTarget)
-  console.log('GEO clicked item before ', d3.event.currentTarget.geoLocation)
+  console.log('clicked item ', selection)
 
-  // Resetting all transformations before starting a new one
+  // // Resetting all transformations before starting a new one
+  // console.log('joe ', data)
   resetDataPoint(data)
 
-  let selection = d3.select(d3.event.currentTarget)
+  let current = d3.select(d3.event.currentTarget)
 
   // Tranform data point
-  selection
-    .select('rect')
-    .classed('square-active', true)
-    .transition()
-    .duration(500)
-    .attr('x', '400')
-    .attr('y', '280')
+  // current
+  //   .select('rect')
+  //   .classed('square-active', true)
+  //   .transition()
+  //   .duration(500)
+  //   .attr('x', '400')
+  //   .attr('y', '280')
 
   // Add title
-  selection
+  current
     .select('foreignObject')
     .classed('title-active', true)
     .attr('x', '410')
     .attr('y', '290')
 
   // Add image
-  selection
+  current
     .select('image')
     .classed('img-active', true)
     .attr('x', '410')
@@ -246,6 +262,12 @@ function tranformDataPoint (selected, data) {
         return 320
       }
     })
+
+  d3.select('.item-container')
+    .classed('container-active', true)
+    .transition()
+    .duration(500)
+    .attr('height', '220px')
 
   // Function to transform the close button
   transformCloseButton()
@@ -281,16 +303,11 @@ function transformCloseButton () {
 }
 
 function resetDataPoint (data) {
-  svgSecond.selectAll('rect')
-    .classed('square-active', false)
+   d3.select('.item-container')
+    .classed('container-active', false)
     .transition()
     .duration(500)
-    .attr('x', function (data) {
-      return projection([data.geoLocation.long, data.geoLocation.lat])[0]
-    })
-    .attr('y', function (data) {
-      return projection([data.geoLocation.long, data.geoLocation.lat])[1]
-    })
+    .attr('height', '0px')
 
   // Reset all text elements
   svgSecond.selectAll('foreignObject')
@@ -299,6 +316,10 @@ function resetDataPoint (data) {
   // Reset all image elements
   svgSecond.selectAll('image')
     .classed('img-active', false)
+
+    // Reset all image elements
+  svgSecond.selectAll('.data-point')
+    .classed('rect-active', false)
 
   // Reset close button
   svgSecond.selectAll('circle')
@@ -391,6 +412,9 @@ container.on('click', spin)
 function spin (d) {
   container.on('click', null)
 
+  // Reset all data so it doesn't exist when the data is updated
+  resetDataPoint()
+
   // Check the previous pick and length of the categories
   console.log('OldPick: ' + oldpick.length, 'Data length: ' + categories.length)
 
@@ -436,6 +460,7 @@ function spin (d) {
 
       // Run function the update function
       categories[picked].run()
+
 
       // Set old rotation as current one
       oldrotation = rotation
