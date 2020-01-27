@@ -96,38 +96,102 @@ function plotLocations () {
 }
 
 // Render the data points
+// function render (selection, newData, div) {
+//   // Run function to append the item container to the svg
+//   createItemContainer()
+
+//   // ENTER
+//   let svg = selection
+//     .selectAll('.data-point')
+//     .data(newData)
+
+//   svg.enter()
+//   .append('g')
+//   .attr('class', 'group')
+//     .on('mouseover', result => { tooltipIn(result, div) })
+//     .on('mouseout', result => { tooltipOut(div) })
+
+//   // UPDATE
+//   let groups = d3.selectAll('.group')
+
+//   // Append rectangles to group and run tooltip functions
+//   groups.append('rect')
+//     .attr('class', 'data-point')
+//     .attr('rx', '8')
+//     .attr('width', '0')
+//     .attr('height', '0')
+//     .attr('x', function (d) {
+//       return projection([d.geoLocation.long, d.geoLocation.lat])[0]
+//     })
+//     .attr('y', function (d) {
+//       return projection([d.geoLocation.long, d.geoLocation.lat])[1]
+//     })
+//     .on('mouseover', result => { tooltipIn(result, div) })
+//     .on('mouseout', result => { tooltipOut(div) })
+//     .transition()
+//       .delay((d, i) => { return i * 10 })
+//       .duration(1500)
+//       .attr('width', '10')
+//       .attr('height', '10')
+
+//   // Append title to group
+//   groups.append('foreignObject')
+//     .attr('class', 'title')
+//     .classed('title-active', false)
+//     .html(function (d) {
+//       return d.title
+//     })
+
+//   // Append image to group
+//   groups.append('image')
+//     .attr('xlink:href', function (d) { return d.image })
+//     .attr('class', 'img')
+//     .classed('img-active', false)
+
+//   console.log('svg: ', svg)
+
+//     // Run function to transform the data point on click
+//   groups.on('click', (selection, data) => { tranformDataPoint(selection, data) })
+//   groups.on('change', (selection, data) => { tranformDataPoint(selection, data) })
+
+
+//   // EXIT
+//   groups
+//     .exit()
+//     .remove()
+
+//   // Run function to append a close button to the svg
+//   createCloseButton()
+// }
+
+// Render the data points
 function render (selection, newData, div) {
-   // Run function to append the item container to the svg
+  // Run function to append the item container to the svg
   createItemContainer()
 
-  // ENTER
-  let rects = selection
+  let points = selection
     .selectAll('.data-point')
     .data(newData)
-    console.log('data: ', newData)
 
-  rects.enter()
-  .append('g')
-  .attr('class', 'group')
-  .attr('x', function (d) {
-      return projection([d.geoLocation.long, d.geoLocation.lat])[0]
-    })
-    .attr('y', function (d) {
-      return projection([d.geoLocation.long, d.geoLocation.lat])[1]
-    })
-    .on('mouseover', result => { tooltipIn(result, div) })
-    .on('mouseout', result => { tooltipOut(div) })
+  // Enter
+  points.enter()
+    .append('rect')
+      .attr('class', 'data-point')
+      .attr('rx', '8')
+      .attr('width', '10')
+      .attr('height', '10')
+      .attr('x', function (d) {
+        return projection([d.geoLocation.long, d.geoLocation.lat])[0]
+      })
+      .attr('y', function (d) {
+        return projection([d.geoLocation.long, d.geoLocation.lat])[1]
+      })
+      .on('mouseover', result => { tooltipIn(result, div) })
+      .on('mouseout', result => { tooltipOut(div) })
+      .on('click', d => { infoAppear(d) })
 
-  // UPDATE
-  let groups = d3.selectAll('.group')
-  .data(newData)
-
-  // Append rectangles to group and run tooltip functions
-  groups.append('rect')
-    .attr('class', 'data-point')
-    .attr('rx', '8')
-    .attr('width', '0')
-    .attr('height', '0')
+  // Update
+  points
     .attr('x', function (d) {
       return projection([d.geoLocation.long, d.geoLocation.lat])[0]
     })
@@ -136,35 +200,9 @@ function render (selection, newData, div) {
     })
     .on('mouseover', result => { tooltipIn(result, div) })
     .on('mouseout', result => { tooltipOut(div) })
-    .transition()
-      .delay((d, i) => { return i * 10 })
-      .duration(1500)
-      .attr('width', '10')
-      .attr('height', '10')
-
-  // Append title to group
-  groups.append('foreignObject')
-    .attr('class', 'title')
-    .classed('title-active', false)
-    .html(function (d) {
-      return d.title
-    })
-
-  // Append image to group
-  groups.append('image')
-    .attr('xlink:href', function (d) { return d.image })
-    .attr('class', 'img')
-    .classed('img-active', false)
-
-  console.log('Rects: ', rects)
-
-    // Run function to transform the data point on click
-  groups.on('click', (selection, data) => { tranformDataPoint(selection, data) })
-  groups.on('change', (selection, data) => { tranformDataPoint(selection, data) })
-
 
   // EXIT
-  rects
+  points
     .exit()
     .remove()
 
@@ -172,9 +210,43 @@ function render (selection, newData, div) {
   createCloseButton()
 }
 
+function infoAppear (d) {
+  console.log(d.image)
+
+  let container = d3.select('.item-container')
+    .classed('container-active', true)
+    .transition()
+    .duration(500)
+
+  let information = select('.information')
+
+  let svg = d3.selectAll('.svg-container')
+  console.log(d.image)
+
+  information
+    .append('image')
+    .attr('xlink:href', 'https://www.peoplechange.nl/wp-content/uploads/2017/04/placeholder.jpg')
+    .attr('class', 'img')
+    .classed('img-active', false)
+
+  information
+    .append('h2')
+      .attr('class', 'title')
+      .text(d.title)
+
+  information
+    .append('p')
+      .attr('class', 'subtitle')
+      .text(d.description)
+
+
+  // Function to transform the close button
+  transformCloseButton()
+}
+
 function createItemContainer () {
   svgSecond
-    .append('rect')
+    .append('div')
     .attr('class', 'item-container')
     .classed('container-active', false)
     .attr('x', '400')

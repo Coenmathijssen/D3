@@ -1,33 +1,34 @@
 body {
   margin: 0px;
+  background-color: black;
 }
 
 .opening-title {
   font-family: Helvetica, Arial, sans-serif;
   font-size: 40px;
   text-align: center;
+  color: white;
 }
 
 .opening-subtitle {
   font-family: Helvetica, Arial, sans-serif;
   font-size: 20px;
   text-align: center;
+  color: white;
 }
 
 p {
   font-family: Helvetica, Arial, sans-serif;
   font-size: 16px;
   text-align: center;
-}
-
-.sphere {
-  fill: #B0E0E6;
+  color: white;
 }
 
 .country {
   fill: #FF7373;
   stroke: black;
-  stroke-opacity: 0.1;
+  stroke-width: 0.5;
+  stroke-opacity: 2;
 }
 
 svg {
@@ -37,7 +38,7 @@ svg {
 }
 
 .rectangle {
-  fill: #B0E0E6;
+  fill: black;
 }
 
 .item-container {
@@ -70,32 +71,20 @@ svg {
 }
 
 .title {
-  width: 180px;
-  height: 50px;
-  visibility: hidden;
-  opacity: 0;
-  font-size: 1em;
-  font-family: lato, arial, sans-serif;
+  margin: 0;
+  font-size: 1.5em;
+  font-family: helvetica, arial, sans-serif;
   font-weight: bold;
-}
-
-.title.title-active {
-  visibility: visible;
-  opacity: 1;
-  transition: opacity .2s ease-in-out 0.7s;
+  color: white;
 }
 
 .img {
-  width: 160px;
-  height: 130px;
-  visibility: hidden;
-  opacity: 0;
+  width: 100%;
+  height: 200px;
 }
 
-.img.img-active {
-  visibility: visible;
-  opacity: 1;
-  transition: opacity .2s ease-in-out 0.7s;
+.information p {
+  text-align: left;
 }
 
 .close {
@@ -135,12 +124,13 @@ div.tooltip {
     position: absolute;
     text-align: center;
     padding: 1em;
-    font-family: lato, arial, sans-serif;
+    font-family: helvetica, arial, sans-serif;
     font-size: 14px;
-    background: #468499;
-    color: #fff;
+    font-weight: 600;
+    background: #B0E0E6;
+    color: black;
     border: none;
-    border-radius: 6px;
+    border-radius: 3px;
     pointer-events: none;
 }
 
@@ -158,13 +148,13 @@ div.tooltip:after, div.tooltip:before {
 
 div.tooltip:after {
   border-color: rgba(136, 183, 213, 0);
-  border-right-color: #468499;
+  border-right-color: #B0E0E6;
   border-width: 7px;
   margin-top: -7px;
 }
 div.tooltip:before {
   border-color: rgba(194, 225, 245, 0);
-  border-right-color: #468499;
+  border-right-color: #B0E0E6;
   border-width: 9px;
   margin-top: -9px;
 }
@@ -242,4 +232,15 @@ div.tooltip:before {
   justify-content: center;
 }
 
+.info-container {
+  width: calc(100% - 960px);
+  height: 100%;
+}
+
+.information {
+  height: calc(500px - 3em);
+  width: calc(100% - 3em);
+  padding: 1.5em;
+  background-color: #0E0C0C;
+}
 
