@@ -6,11 +6,6 @@ import { transformData } from './transformData.js'
 
 const { select, geoPath, geoNaturalEarth1 } = d3
 
-// Define the div for the tooltip
-let div = d3.select('body').append('div')
-  .attr('class', 'tooltip')
-  .style('opacity', 0)
-
 let transformedData = null
 
 const query = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -90,6 +85,11 @@ function plotLocations () {
 
       console.log('transformed data: ', transformedData)
 
+      // Define the div for the tooltip
+      let div = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+
       // Run the render() function to render the data points
       render(svgSecond, newData, div)
     })
@@ -118,10 +118,10 @@ function render (selection, newData, div) {
     .on('mouseover', result => { tooltipIn(result, div) })
     .on('mouseout', result => { tooltipOut(div) })
 
-let groups = d3.selectAll('.group')
+  // UPDATE
+  let groups = d3.selectAll('.group')
   .data(newData)
 
-  // UPDATE
   // Append rectangles to group and run tooltip functions
   groups.append('rect')
     .attr('class', 'data-point')
@@ -233,23 +233,14 @@ function tranformDataPoint (selection, data) {
 
   let current = d3.select(d3.event.currentTarget)
 
-  // Tranform data point
-  // current
-  //   .select('rect')
-  //   .classed('square-active', true)
-  //   .transition()
-  //   .duration(500)
-  //   .attr('x', '400')
-  //   .attr('y', '280')
-
-  // Add title
+  // Tranform title
   current
     .select('foreignObject')
     .classed('title-active', true)
     .attr('x', '410')
     .attr('y', '290')
 
-  // Add image
+  // Transform image
   current
     .select('image')
     .classed('img-active', true)
@@ -286,7 +277,7 @@ function transformCloseButton () {
       .duration(300)
       .attr('cx', '595')
       .attr('cy', '280')
-      .delay(900)
+      .delay(500)
 
 
   // Change class and y and x for the text element
@@ -299,7 +290,7 @@ function transformCloseButton () {
       .duration(300)
       .attr('x', '589')
       .attr('y', '286')
-      .delay(900)
+      .delay(500)
 }
 
 function resetDataPoint (data) {
@@ -345,10 +336,10 @@ let padding =
   oldpick = []
 
 let categories = [
-  { 'year': '11e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[3].values, div) } }, // padding
-  { 'year': '12e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[1].values, div) } },
-  { 'year': '18e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[2].values, div) } },
-  { 'year': '19e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[0].values, div) } }
+  { 'year': '11e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[3].values) } }, // padding
+  { 'year': '12e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[1].values) } },
+  { 'year': '18e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[2].values) } },
+  { 'year': '19e eeuw', 'value': 1, run: function () { render(svgSecond, transformedData[0].values) } }
 ]
 
 let svgFirst = d3.select('#chart')

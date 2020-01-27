@@ -14,6 +14,12 @@ body {
   text-align: center;
 }
 
+p {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  text-align: center;
+}
+
 .sphere {
   fill: #B0E0E6;
 }
@@ -76,7 +82,7 @@ svg {
 .title.title-active {
   visibility: visible;
   opacity: 1;
-  transition: opacity .2s ease-in-out 1.1s;
+  transition: opacity .2s ease-in-out 0.7s;
 }
 
 .img {
@@ -89,7 +95,7 @@ svg {
 .img.img-active {
   visibility: visible;
   opacity: 1;
-  transition: opacity .2s ease-in-out 1.1s;
+  transition: opacity .2s ease-in-out 0.7s;
 }
 
 .close {
@@ -99,7 +105,7 @@ svg {
   fill: #468499;
   stroke: black;
   stroke-width: 1;
-  transition: opacity .2s ease-in-out 0.9s;
+  transition: opacity .2s ease-in-out  0.9s;
   cursor: pointer;
 }
 
@@ -116,13 +122,13 @@ svg {
 .close.close-active {
   visibility: visible;
   opacity: 1;
-  transition: opacity .2s ease-in-out 0.9s;
+  transition: opacity .2s ease-in-out 0.5s;
 }
 
 .close-text.close-active {
   visibility: visible;
   opacity: 1;
-  transition: opacity .2s ease-in-out 0.9s;
+  transition: opacity .2s ease-in-out 0.5s;
 }
 
 div.tooltip {
