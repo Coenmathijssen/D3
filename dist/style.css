@@ -37,6 +37,22 @@ svg {
   overflow: visible;
 }
 
+.zoom-container {
+  width: 960px;
+  height: 500px;
+  overflow: hidden;
+}
+
+
+.zoom-container:hover {
+  cursor: grab;
+}
+
+.zoom-container:active {
+  cursor: grabbing;
+}
+
+
 .rectangle {
   fill: black;
 }
@@ -79,8 +95,9 @@ svg {
 }
 
 .img {
-  width: 100%;
-  height: 200px;
+  max-width: 100%;
+  max-height: 300px;
+  margin-bottom: 1.5em;
 }
 
 .information p {
@@ -167,7 +184,7 @@ div.tooltip:before {
 
 #chart {
   position: relatie;
-  width: 500px;
+  width: 370px;
   height: 380px;
   top:0;
   left:0;
@@ -182,7 +199,7 @@ div.tooltip:before {
 }
 
 #question h1 {
-  font-size: 50px;
+  font-size: 2em;
   font-weight: bold;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   position: absolute;
@@ -191,6 +208,7 @@ div.tooltip:before {
   top: 39%;
   -webkit-transform:translate(0,-50%);
   transform:translate(0,-50%);
+  color: #fff;
 }
 
 .slice {
@@ -220,11 +238,16 @@ div.tooltip:before {
     position: absolute;
     left: 63%;
     transform: translateX(-50%);
+    height: 370px;
 }
 
 .spinning-wheel-text {
   stroke-width: 0px;
-  font-family:Helvetica, Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.arrow {
+  fill: white;
 }
 
 .svg-container.second {
@@ -238,7 +261,6 @@ div.tooltip:before {
 }
 
 .information {
-  height: calc(500px - 3em);
   width: calc(100% - 3em);
   padding: 1.5em;
   background-color: #0E0C0C;

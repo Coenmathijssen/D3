@@ -4,7 +4,7 @@ import { feature } from 'topojson'
 import { cleanDataYear } from './cleanDataYear.js'
 import { transformData } from './transformData.js'
 
-const { select, geoPath, geoNaturalEarth1 } = d3
+import { zoom, event, select, geoPath, geoNaturalEarth1 } from 'd3'
 
 let transformedData = null
 
@@ -31,6 +31,11 @@ SELECT * WHERE {
          edm:isShownBy ?imageLink .
      ?place skos:exactMatch/wgs84:lat ?lat .
      ?place skos:exactMatch/wgs84:long ?long .
+
+     ?place skos:exactMatch/gn:parentCountry ?land .
+     ?place skos:prefLabel ?placeName .
+     ?land gn:name ?landLabel .
+
      ?cho dc:title ?title .
      ?cho dc:description ?desc .
      ?cho dct:created ?date .
@@ -80,6 +85,7 @@ function plotLocations () {
       return fetchedData
     })
     .then(fetchedData => {
+      console.log('fetched data: ', fetchedData)
       let newData = cleanDataYear(fetchedData)
       transformedData = transformData(newData)
 
@@ -167,7 +173,6 @@ function plotLocations () {
 // Render the data points
 function render (selection, newData, div) {
   // Run function to append the item container to the svg
-  createItemContainer()
 
   let points = selection
     .selectAll('.data-point')
@@ -176,19 +181,19 @@ function render (selection, newData, div) {
   // Enter
   points.enter()
     .append('rect')
-      .attr('class', 'data-point')
-      .attr('rx', '8')
-      .attr('width', '10')
-      .attr('height', '10')
-      .attr('x', function (d) {
-        return projection([d.geoLocation.long, d.geoLocation.lat])[0]
-      })
-      .attr('y', function (d) {
-        return projection([d.geoLocation.long, d.geoLocation.lat])[1]
-      })
-      .on('mouseover', result => { tooltipIn(result, div) })
-      .on('mouseout', result => { tooltipOut(div) })
-      .on('click', d => { infoAppear(d) })
+    .attr('class', 'data-point')
+    .attr('rx', '8')
+    .attr('width', '10')
+    .attr('height', '10')
+    .attr('x', function (d) {
+      return projection([d.geoLocation.long, d.geoLocation.lat])[0]
+    })
+    .attr('y', function (d) {
+      return projection([d.geoLocation.long, d.geoLocation.lat])[1]
+    })
+    .on('mouseover', result => { tooltipIn(result, div) })
+    .on('mouseout', result => { tooltipOut(div) })
+    .on('click', d => { infoAppear(d) })
 
   // Update
   points
@@ -200,6 +205,7 @@ function render (selection, newData, div) {
     })
     .on('mouseover', result => { tooltipIn(result, div) })
     .on('mouseout', result => { tooltipOut(div) })
+    .on('click', d => { infoAppear(d) })
 
   // EXIT
   points
@@ -207,74 +213,65 @@ function render (selection, newData, div) {
     .remove()
 
   // Run function to append a close button to the svg
-  createCloseButton()
+  // createCloseButton()
 }
 
-function infoAppear (d) {
-  console.log(d.image)
-
-  let container = d3.select('.item-container')
-    .classed('container-active', true)
-    .transition()
-    .duration(500)
-
+function infoAppear (data) {
   let information = select('.information')
 
-  let svg = d3.selectAll('.svg-container')
-  console.log(d.image)
+  information.selectAll('h2, img, p')
+    .remove()
 
   information
-    .append('image')
-    .attr('xlink:href', 'https://www.peoplechange.nl/wp-content/uploads/2017/04/placeholder.jpg')
+    .append('img')
+    .attr('src', data.image)
     .attr('class', 'img')
-    .classed('img-active', false)
 
   information
     .append('h2')
       .attr('class', 'title')
-      .text(d.title)
+      .text(data.title)
 
   information
     .append('p')
-      .attr('class', 'subtitle')
-      .text(d.description)
-
+      .attr('class', 'description')
+      .text(data.description)
 
   // Function to transform the close button
-  transformCloseButton()
+  // transformCloseButton()
 }
 
-function createItemContainer () {
-  svgSecond
-    .append('div')
-    .attr('class', 'item-container')
-    .classed('container-active', false)
-    .attr('x', '400')
-    .attr('y', '270')
-    .attr('rx', '8')
-    .attr('height', '0')
-}
+// function createItemContainer () {
+//   svgSecond
+//     .append('div')
+//     .attr('class', 'item-container')
+//     .classed('container-active', false)
+//     .attr('x', '400')
+//     .attr('y', '270')
+//     .attr('rx', '8')
+//     .attr('height', '0')
+// }
 
-// Function to append a close button to the svg
-function createCloseButton () {
-  svgSecond
-    .append('circle')
-      .attr('class', 'close')
-      .classed('close-active', false)
-      .attr('r', '12')
-      .attr('cx', '595')
-      .attr('cy', '305')
-      .on('click', (selection) => { resetDataPoint(selection) })
+// // Function to append a close button to the svg
+// function createCloseButton () {
+//   svgSecond
+//     .append('circle')
+//       .attr('class', 'close')
+//       .classed('close-active', false)
+//       .attr('r', '12')
+//       .attr('cx', '595')
+//       .attr('cy', '305')
+//       .on('click', (selection) => { resetDataPoint(selection) })
 
-  svgSecond
-    .append('text')
-      .text('x')
-      .attr('class', 'close-text')
-      .classed('close-active', false)
-      .attr('x', '589')
-      .attr('y', '311')
-      .on('click', (selection) => { resetDataPoint(selection) })
-}
+//   svgSecond
+//     .append('text')
+//       .text('x')
+//       .attr('class', 'close-text')
+//       .classed('close-active', false)
+//       .attr('x', '589')
+//       .attr('y', '311')
+//       .on('click', (selection) => { resetDataPoint(selection) })
+// }
 
 // Display tooltip with title and place name
 function tooltipIn (result, div) {
@@ -301,7 +298,7 @@ function tranformDataPoint (selection, data) {
 
   // // Resetting all transformations before starting a new one
   // console.log('joe ', data)
-  resetDataPoint(data)
+  // resetDataPoint(data)
 
   let current = d3.select(d3.event.currentTarget)
 
@@ -365,31 +362,38 @@ function transformCloseButton () {
       .delay(500)
 }
 
-function resetDataPoint (data) {
-   d3.select('.item-container')
-    .classed('container-active', false)
-    .transition()
-    .duration(500)
-    .attr('height', '0px')
+// function resetDataPoint (data) {
+//    d3.select('.item-container')
+//     .classed('container-active', false)
+//     .transition()
+//     .duration(500)
+//     .attr('height', '0px')
 
-  // Reset all text elements
-  svgSecond.selectAll('foreignObject')
-    .classed('title-active', false)
+//   // Reset all text elements
+//   svgSecond.selectAll('foreignObject')
+//     .classed('title-active', false)
 
-  // Reset all image elements
-  svgSecond.selectAll('image')
-    .classed('img-active', false)
+//   // Reset all image elements
+//   svgSecond.selectAll('image')
+//     .classed('img-active', false)
 
-    // Reset all image elements
-  svgSecond.selectAll('.data-point')
-    .classed('rect-active', false)
+//     // Reset all image elements
+//   svgSecond.selectAll('.data-point')
+//     .classed('rect-active', false)
 
-  // Reset close button
-  svgSecond.selectAll('circle')
-    .classed('close-active', false)
-  svgSecond.selectAll('.close-text')
-    .classed('close-active', false)
-}
+//   // Reset close button
+//   svgSecond.selectAll('circle')
+//     .classed('close-active', false)
+//   svgSecond.selectAll('.close-text')
+//     .classed('close-active', false)
+// }
+
+let zoomContainer = d3.select('.zoom-container')
+
+zoomContainer.call(zoom().on('zoom', () => {
+  console.log(event)
+  svgSecond.attr('transform', event.transform)
+}))
 
 ////////////////// SPINNING WHEEL CODE /////////////////////////
 let padding =
@@ -475,9 +479,6 @@ container.on('click', spin)
 function spin (d) {
   container.on('click', null)
 
-  // Reset all data so it doesn't exist when the data is updated
-  resetDataPoint()
-
   // Check the previous pick and length of the categories
   console.log('OldPick: ' + oldpick.length, 'Data length: ' + categories.length)
 
@@ -538,7 +539,8 @@ svgFirst.append('g')
   .attr('transform', 'translate(' + (w + padding.left + padding.right) + ',' + ((h / 2) + padding.top) + ')')
   .append('path')
   .attr('d', 'M-' + (r * 0.15) + ',0L0,' + (r * 0.05) + 'L0,-' + (r * 0.05) + 'Z')
-  .style({ 'fill': 'black' })
+  .attr('class', 'arrow')
+  .style({ 'fill': '#fff' })
 
 // Create spin circle
 container.append('circle')

@@ -271,8 +271,6 @@
 
   // Daan helped my rewrite the import to make it work in my code edittor
 
-  const { select, geoPath, geoNaturalEarth1 } = d3;
-
   let transformedData = null;
 
   const query = `PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -298,6 +296,11 @@ SELECT * WHERE {
          edm:isShownBy ?imageLink .
      ?place skos:exactMatch/wgs84:lat ?lat .
      ?place skos:exactMatch/wgs84:long ?long .
+
+     ?place skos:exactMatch/gn:parentCountry ?land .
+     ?place skos:prefLabel ?placeName .
+     ?land gn:name ?landLabel .
+
      ?cho dc:title ?title .
      ?cho dc:description ?desc .
      ?cho dct:created ?date .
@@ -307,9 +310,9 @@ LIMIT 250`;
 
   const endpoint = 'https://api.data.netwerkdigitaalerfgoed.nl/datasets/ivo/NMVW/services/NMVW-04/sparql';
 
-  const svgSecond = select('.svg-second');
-  const projection = geoNaturalEarth1();
-  const pathGenerator = geoPath().projection(projection);
+  const svgSecond = d3.select('.svg-second');
+  const projection = d3.geoNaturalEarth1();
+  const pathGenerator = d3.geoPath().projection(projection);
 
   setupMap();
   drawMap();
@@ -347,6 +350,7 @@ LIMIT 250`;
         return fetchedData
       })
       .then(fetchedData => {
+        console.log('fetched data: ', fetchedData);
         let newData = cleanDataYear(fetchedData);
         transformedData = transformData(newData);
 
@@ -434,7 +438,6 @@ LIMIT 250`;
   // Render the data points
   function render (selection, newData, div) {
     // Run function to append the item container to the svg
-    createItemContainer();
 
     let points = selection
       .selectAll('.data-point')
@@ -443,19 +446,19 @@ LIMIT 250`;
     // Enter
     points.enter()
       .append('rect')
-        .attr('class', 'data-point')
-        .attr('rx', '8')
-        .attr('width', '10')
-        .attr('height', '10')
-        .attr('x', function (d) {
-          return projection([d.geoLocation.long, d.geoLocation.lat])[0]
-        })
-        .attr('y', function (d) {
-          return projection([d.geoLocation.long, d.geoLocation.lat])[1]
-        })
-        .on('mouseover', result => { tooltipIn(result, div); })
-        .on('mouseout', result => { tooltipOut(div); })
-        .on('click', d => { infoAppear(d); });
+      .attr('class', 'data-point')
+      .attr('rx', '8')
+      .attr('width', '10')
+      .attr('height', '10')
+      .attr('x', function (d) {
+        return projection([d.geoLocation.long, d.geoLocation.lat])[0]
+      })
+      .attr('y', function (d) {
+        return projection([d.geoLocation.long, d.geoLocation.lat])[1]
+      })
+      .on('mouseover', result => { tooltipIn(result, div); })
+      .on('mouseout', result => { tooltipOut(div); })
+      .on('click', d => { infoAppear(d); });
 
     // Update
     points
@@ -466,7 +469,8 @@ LIMIT 250`;
         return projection([d.geoLocation.long, d.geoLocation.lat])[1]
       })
       .on('mouseover', result => { tooltipIn(result, div); })
-      .on('mouseout', result => { tooltipOut(div); });
+      .on('mouseout', result => { tooltipOut(div); })
+      .on('click', d => { infoAppear(d); });
 
     // EXIT
     points
@@ -474,74 +478,65 @@ LIMIT 250`;
       .remove();
 
     // Run function to append a close button to the svg
-    createCloseButton();
+    // createCloseButton()
   }
 
-  function infoAppear (d) {
-    console.log(d.image);
+  function infoAppear (data) {
+    let information = d3.select('.information');
 
-    let container = d3.select('.item-container')
-      .classed('container-active', true)
-      .transition()
-      .duration(500);
-
-    let information = select('.information');
-
-    let svg = d3.selectAll('.svg-container');
-    console.log(d.image);
+    information.selectAll('h2, img, p')
+      .remove();
 
     information
-      .append('image')
-      .attr('xlink:href', 'https://www.peoplechange.nl/wp-content/uploads/2017/04/placeholder.jpg')
-      .attr('class', 'img')
-      .classed('img-active', false);
+      .append('img')
+      .attr('src', data.image)
+      .attr('class', 'img');
 
     information
       .append('h2')
         .attr('class', 'title')
-        .text(d.title);
+        .text(data.title);
 
     information
       .append('p')
-        .attr('class', 'subtitle')
-        .text(d.description);
-
+        .attr('class', 'description')
+        .text(data.description);
 
     // Function to transform the close button
-    transformCloseButton();
+    // transformCloseButton()
   }
 
-  function createItemContainer () {
-    svgSecond
-      .append('div')
-      .attr('class', 'item-container')
-      .classed('container-active', false)
-      .attr('x', '400')
-      .attr('y', '270')
-      .attr('rx', '8')
-      .attr('height', '0');
-  }
+  // function createItemContainer () {
+  //   svgSecond
+  //     .append('div')
+  //     .attr('class', 'item-container')
+  //     .classed('container-active', false)
+  //     .attr('x', '400')
+  //     .attr('y', '270')
+  //     .attr('rx', '8')
+  //     .attr('height', '0')
+  // }
 
-  // Function to append a close button to the svg
-  function createCloseButton () {
-    svgSecond
-      .append('circle')
-        .attr('class', 'close')
-        .classed('close-active', false)
-        .attr('r', '12')
-        .attr('cx', '595')
-        .attr('cy', '305')
-        .on('click', (selection) => { resetDataPoint(); });
+  // // Function to append a close button to the svg
+  // function createCloseButton () {
+  //   svgSecond
+  //     .append('circle')
+  //       .attr('class', 'close')
+  //       .classed('close-active', false)
+  //       .attr('r', '12')
+  //       .attr('cx', '595')
+  //       .attr('cy', '305')
+  //       .on('click', (selection) => { resetDataPoint(selection) })
 
-    svgSecond
-      .append('text')
-        .text('x')
-        .attr('class', 'close-text')
-        .classed('close-active', false)
-        .attr('x', '589')
-        .attr('y', '311')
-        .on('click', (selection) => { resetDataPoint(); });
-  }
+  //   svgSecond
+  //     .append('text')
+  //       .text('x')
+  //       .attr('class', 'close-text')
+  //       .classed('close-active', false)
+  //       .attr('x', '589')
+  //       .attr('y', '311')
+  //       .on('click', (selection) => { resetDataPoint(selection) })
+  // }
 
   // Display tooltip with title and place name
   function tooltipIn (result, div) {
@@ -560,60 +555,38 @@ LIMIT 250`;
       .style('opacity', 0);
   }
 
-  // Change class and y and x axis in function
-  function transformCloseButton () {
-    // Change class and y and x for the circle element
-    d3.select('.close')
-      .classed('close-active', false)
-      .attr('r', '12')
-      .attr('cx', '595')
-      .attr('cy', '305')
-      .classed('close-active', true)
-      .transition()
-        .duration(300)
-        .attr('cx', '595')
-        .attr('cy', '280')
-        .delay(500);
+  // function resetDataPoint (data) {
+  //    d3.select('.item-container')
+  //     .classed('container-active', false)
+  //     .transition()
+  //     .duration(500)
+  //     .attr('height', '0px')
 
+  //   // Reset all text elements
+  //   svgSecond.selectAll('foreignObject')
+  //     .classed('title-active', false)
 
-    // Change class and y and x for the text element
-    d3.select('.close-text')
-      .classed('close-active', false)
-      .attr('x', '589')
-      .attr('y', '311')
-      .classed('close-active', true)
-      .transition()
-        .duration(300)
-        .attr('x', '589')
-        .attr('y', '286')
-        .delay(500);
-  }
+  //   // Reset all image elements
+  //   svgSecond.selectAll('image')
+  //     .classed('img-active', false)
 
-  function resetDataPoint (data) {
-     d3.select('.item-container')
-      .classed('container-active', false)
-      .transition()
-      .duration(500)
-      .attr('height', '0px');
+  //     // Reset all image elements
+  //   svgSecond.selectAll('.data-point')
+  //     .classed('rect-active', false)
 
-    // Reset all text elements
-    svgSecond.selectAll('foreignObject')
-      .classed('title-active', false);
+  //   // Reset close button
+  //   svgSecond.selectAll('circle')
+  //     .classed('close-active', false)
+  //   svgSecond.selectAll('.close-text')
+  //     .classed('close-active', false)
+  // }
 
-    // Reset all image elements
-    svgSecond.selectAll('image')
-      .classed('img-active', false);
+  let zoomContainer = d3.select('.zoom-container');
 
-      // Reset all image elements
-    svgSecond.selectAll('.data-point')
-      .classed('rect-active', false);
-
-    // Reset close button
-    svgSecond.selectAll('circle')
-      .classed('close-active', false);
-    svgSecond.selectAll('.close-text')
-      .classed('close-active', false);
-  }
+  zoomContainer.call(d3.zoom().on('zoom', () => {
+    console.log(d3.event);
+    svgSecond.attr('transform', d3.event.transform);
+  }));
 
   ////////////////// SPINNING WHEEL CODE /////////////////////////
   let padding =
@@ -699,9 +672,6 @@ LIMIT 250`;
   function spin (d) {
     container.on('click', null);
 
-    // Reset all data so it doesn't exist when the data is updated
-    resetDataPoint();
-
     // Check the previous pick and length of the categories
     console.log('OldPick: ' + oldpick.length, 'Data length: ' + categories.length);
 
@@ -761,7 +731,8 @@ LIMIT 250`;
     .attr('transform', 'translate(' + (w + padding.left + padding.right) + ',' + ((h / 2) + padding.top) + ')')
     .append('path')
     .attr('d', 'M-' + (r * 0.15) + ',0L0,' + (r * 0.05) + 'L0,-' + (r * 0.05) + 'Z')
-    .style({ 'fill': 'black' });
+    .attr('class', 'arrow')
+    .style({ 'fill': '#fff' });
 
   // Create spin circle
   container.append('circle')
