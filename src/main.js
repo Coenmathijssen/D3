@@ -144,7 +144,6 @@ function render (selection, newData, div) {
   points.enter()
     .append('rect')
     .attr('class', 'data-point')
-    .attr('rx', '8')
     .attr('width', '10')
     .attr('height', '10')
     .attr('x', function (d) {
@@ -197,7 +196,6 @@ function infoAppear (data) {
     .text(data.description)
 }
 
-
 // Display tooltip with title and place name
 function tooltipIn (result, div) {
   div.html(result.title)
@@ -215,36 +213,7 @@ function tooltipOut (div) {
     .style('opacity', 0)
 }
 
-// // Change class and y and x axis in function
-// function transformCloseButton () {
-//   // Change class and y and x for the circle element
-//   d3.select('.close')
-//     .classed('close-active', false)
-//     .attr('r', '12')
-//     .attr('cx', '595')
-//     .attr('cy', '305')
-//     .classed('close-active', true)
-//     .transition()
-//       .duration(300)
-//       .attr('cx', '595')
-//       .attr('cy', '280')
-//       .delay(500)
-
-
-//   // Change class and y and x for the text element
-//   d3.select('.close-text')
-//     .classed('close-active', false)
-//     .attr('x', '589')
-//     .attr('y', '311')
-//     .classed('close-active', true)
-//     .transition()
-//       .duration(300)
-//       .attr('x', '589')
-//       .attr('y', '286')
-//       .delay(500)
-// }
-
-let zoomContainer = d3.select('.zoom-container')
+const zoomContainer = d3.select('.zoom-container')
 
 zoomContainer.call(zoom().on('zoom', () => {
   svgSecond.attr('transform', event.transform)
