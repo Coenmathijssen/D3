@@ -14,6 +14,22 @@ const svgSecond = select('.svg-second')
 const projection = geoNaturalEarth1()
 const pathGenerator = geoPath().projection(projection)
 
+// Information slide down and up
+document.getElementsByClassName('close')[0].addEventListener('click', function () {
+  let explainText = document.getElementsByClassName('explain-text')[0]
+  explainText.classList.remove('slide-down')
+})
+
+document.getElementsByClassName('question-mark')[0].addEventListener('click', function () {
+  let explainText = document.getElementsByClassName('explain-text')[0]
+  explainText.classList.add('slide-down')
+})
+
+// Define the div for the tooltip
+const div = d3.select('body').append('div')
+  .attr('class', 'tooltip')
+  .style('opacity', 0)
+
 setupMap()
 drawMap()
 
@@ -41,7 +57,7 @@ const categoryItems = document.getElementsByClassName('category')
 const categoryArray = ['13201', '5929', '14842', '14607', '14395']
 
 for (let i = 0; i < categoryItems.length; i++) {
-  categoryItems[i].addEventListener('click', function () { changeCategory(categoryArray[i]) })
+  categoryItems[i].addEventListener('click', function () { changeCategory(categoryArray[i]); changeClass(i) })
 }
 
 function changeCategory (termmaster) {
@@ -83,6 +99,14 @@ LIMIT 250`
   plotLocations(query)
 }
 
+function changeClass (i) {
+  for (let index = 0; index < categoryItems.length; index++) {
+    categoryItems[index].classList.remove('active')
+  }
+  console.log(categoryItems[i])
+  categoryItems[i].classList.add('active')
+}
+
 function plotLocations (query) {
   fetch(endpoint + '?query=' + encodeURIComponent(query) + '&format=json')
     .then(res => res.json())
@@ -102,11 +126,6 @@ function plotLocations (query) {
       console.log('transformed data: ', transformedData)
 
       createSpinningWheel(transformedData)
-
-      // Define the div for the tooltip
-      let div = d3.select('body').append('div')
-        .attr('class', 'tooltip')
-        .style('opacity', 0)
 
       // Run the render() function to render the data points
       render(svgSecond, newData, div)
@@ -232,34 +251,37 @@ zoomContainer.call(zoom().on('zoom', () => {
 }))
 
 ////////////////// SPINNING WHEEL CODE /////////////////////////
-let padding =
-{
-  top: 20,
-  right: 40,
-  bottom: 0,
-  left: 0
-},
-  w = 350 - padding.left - padding.right,
-  h = 350 - padding.top - padding.bottom,
-  r = Math.min(w, h) / 2,
-  rotation = 0,
-  oldrotation = 0,
-  picked = 100000,
-  oldpick = []
-
-
 function createSpinningWheel (data) {
+  // Get the transformed data in the right format
   let categories = []
   data.forEach(century => {
     let arrayItem = {
       'year': century.key.toString().slice(0, -2) + 'e eeuw',
       'value': 1,
-      run: function () { render(svgSecond, century.values) }
+      run: function () { render(svgSecond, century.values, div) }
     }
     categories.push(arrayItem)
   })
 
-  // d3.select('.spinning-wheel').remove()
+  // Reset spinning wheel
+  d3.select('.spinning-wheel').remove()
+  d3.select('#question h1').text('')
+
+  // Spinning wheel code
+  let padding =
+  {
+    top: 20,
+    right: 40,
+    bottom: 0,
+    left: 0
+  },
+    w = 350 - padding.left - padding.right,
+    h = 350 - padding.top - padding.bottom,
+    r = Math.min(w, h) / 2,
+    rotation = 0,
+    oldrotation = 0,
+    picked = 100000,
+    oldpick = []
 
   let svgFirst = d3.select('#chart')
     .append('svg')

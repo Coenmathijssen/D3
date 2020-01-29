@@ -1,16 +1,95 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
+  position: relative;
   margin: 0px;
   background-color: black;
 }
 
+.question-mark {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  height: 60px;
+  z-index: 99;
+}
+
+.question-mark:hover {
+  cursor: pointer;
+}
+
+.explain-text {
+  position: absolute;
+  top: 0;
+  width: 100vw;
+  height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #0E0C0C;
+  overflow: hidden;
+  z-index: 999;
+  transition: all .5s ease-in-out;
+}
+
+.close:hover {
+  cursor: pointer;
+}
+
+.slide-down {
+  height: 100vh;
+  transition: all .5s ease-in-out;
+}
+
+.border {
+  position: relative;
+  width: 95%;
+  height: 91%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: solid 2px white;
+  overflow: hidden;
+}
+
+.border > img {
+  position: absolute;
+  width: 60px;
+  z-index: 99;
+  right: 15px;
+  top: 15px;
+}
+
+.border p {
+  margin: 0;
+  max-width: 600px;
+}
+
+.title-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.title-container img {
+  width: 200px;
+}
+
 .opening-title {
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 40px;
+  font-size: 4em;
   text-align: center;
+  letter-spacing: 2px;
   color: white;
 }
 
 .opening-subtitle {
+  margin: 5vh 0 1vh 0;
   font-family: Helvetica, Arial, sans-serif;
   font-size: 20px;
   text-align: center;
@@ -78,14 +157,6 @@ svg {
   cursor: pointer;
 }
 
-.square-active {
-  width: 200px;
-  height: 200px;
-  border-radius: 8px;
-  opacity: 0.9;
-  transition: all .2s ease-in-out;
-}
-
 .title {
   margin: 0;
   font-size: 1.5em;
@@ -102,39 +173,6 @@ svg {
 
 .information p {
   text-align: left;
-}
-
-.close {
-  position: relative;
-  visibility: hidden;
-  opacity: 0;
-  fill: #468499;
-  stroke: black;
-  stroke-width: 1;
-  transition: opacity .2s ease-in-out  0.9s;
-  cursor: pointer;
-}
-
-.close-text {
-  visibility: hidden;
-  opacity: 0;
-  fill: white;
-  font-size: 24px;
-  font-family: lato, arial, sans-serif;
-  transition: opacity .2s ease-in-out 0.9s;
-  cursor: pointer;
-}
-
-.close.close-active {
-  visibility: visible;
-  opacity: 1;
-  transition: opacity .2s ease-in-out 0.5s;
-}
-
-.close-text.close-active {
-  visibility: visible;
-  opacity: 1;
-  transition: opacity .2s ease-in-out 0.5s;
 }
 
 div.tooltip {
@@ -183,10 +221,12 @@ div.tooltip:before {
 
 .svg-container.first {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-around;
+  padding-bottom: 4vh;
 }
 
 .categories {
+  width: 40%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -203,8 +243,47 @@ div.tooltip:before {
 }
 
 .categories ul li {
+  display: inline;
+  position: relative;
   margin: 5px 0;
   padding: 2px 10px;
+  transition: all .3s ease-in-out;
+}
+
+.categories ul li:hover {
+  cursor: pointer;
+}
+
+.categories ul li::after {
+  content: '';
+  position: absolute;
+  margin-left: 0;
+  top: 9px;
+  right: 0;
+  opacity: 0;
+  background: url(./images/right-arrow.png) 0 0 no-repeat;
+  background-size: 25px;
+  width: 25px;
+  height: 25px;
+  transition: all .3s ease-in-out;
+}
+
+.categories ul li.active {
+  margin-left: -20px;
+  transition: all .3s ease-in-out;
+  color: #ff7373;
+}
+
+.categories ul li.active::after {
+  content: '';
+  position: absolute;
+  top: 9px;
+  right: -25px;
+  opacity: 1;
+  background: url(./images/right-arrow.png) 0 0 no-repeat;
+  background-size: 25px;
+  width: 25px;
+  height: 25px;
 
 }
 
@@ -242,6 +321,10 @@ div.tooltip:before {
   fill: white;
   stroke-width: 2px;
   stroke: black;
+  cursor: pointer;
+}
+
+.circle-middle:hover {
   cursor: pointer;
 }
 
@@ -289,8 +372,18 @@ div.tooltip:before {
 }
 
 .information {
-  width: calc(100% - 3em);
-  padding: 1.5em;
   background-color: #0E0C0C;
 }
 
+.information img {
+  padding: 1.5em 1.5em 0;
+}
+
+
+.information h2 {
+  padding: 0 1em;
+}
+
+.information p {
+  padding: 0 1.5em 1.5em;
+}
