@@ -9,5 +9,7 @@ export function transformData (data) {
   transformedData.forEach(century => {
     century.amount = century.values.length
   })
+
+  transformedData = transformedData.sort((a, b) => (a.key > b.key) ? 1 : -1)
   return transformedData
 }
