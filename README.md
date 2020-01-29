@@ -1,5 +1,5 @@
 # functional-programming
-![opening-foto](https://user-images.githubusercontent.com/43337909/69763519-ae346c00-116d-11ea-9c06-7e8d44886c87.png)
+![project](https://user-images.githubusercontent.com/43337909/73401044-ad919080-42ea-11ea-8594-97f6953502e8.gif)
 
 # Het concept
 Bij het rad van fortuin is een schijf aanwezig met eeuwen (tussen bijv. jaartal 1900 en 1999). Daarnaast zijn er een aantal knoppen aanwezig waarmee een categorie gekozen kan worden. Met een spin gaat de schijf draaien en stopt deze op een willekeurige waarde. Vervolgens worden hier de bijpassende objecten voor opgehaald en geplaatst op de wereldkaart via GEO coördinaten. Om te voorkomen dat er alleen maar objecten op dezelfde plek wordt weergegeven, worden er maar 3 tot 5 items weeergegeven per continent. Ook is er een toggle aanwezig. Deze toggled om óf alle objecten te laten zien, óf alle objecten die al ooit tentoon zijn gesteld. Zo kan de gebruiker kiezen of hij objecten wil zien waar het museum trots op is of om te bekijken wat de enorme collectie allemaal te bieden heeft. De objecten kunnen vervolgens aangeklikt worden, om uitvergroot te worden tot een gerond vierkant met hierin informatie zoals de titel, een foto, het jaartal, de categorie en een mogelijke beschrijving van het object.
