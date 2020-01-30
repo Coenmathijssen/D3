@@ -30,6 +30,7 @@ const div = d3.select('body').append('div')
   .attr('class', 'tooltip')
   .style('opacity', 0)
 
+// Init map
 setupMap()
 drawMap()
 
@@ -53,11 +54,13 @@ function drawMap () {
   })
 }
 
+// Get category items and run functions which changes the category highlight and changes the query
+// To the corresponding termmaster
 const categoryItems = document.getElementsByClassName('category')
 const categoryArray = ['13201', '5929', '14842', '14607', '14395']
 
 for (let i = 0; i < categoryItems.length; i++) {
-  categoryItems[i].addEventListener('click', function () { changeCategory(categoryArray[i]); changeClass(i) })
+  categoryItems[i].addEventListener('click', () => { changeCategory(categoryArray[i]); changeClass(i) })
 }
 
 function changeCategory (termmaster) {
@@ -103,7 +106,6 @@ function changeClass (i) {
   for (let index = 0; index < categoryItems.length; index++) {
     categoryItems[index].classList.remove('active')
   }
-  console.log(categoryItems[i])
   categoryItems[i].classList.add('active')
 }
 
@@ -132,7 +134,7 @@ function plotLocations (query) {
     })
 }
 
-// Render the data points
+// Render the data points inside the map
 function render (selection, newData, div) {
   // Run function to append the item container to the svg
 
@@ -174,6 +176,7 @@ function render (selection, newData, div) {
     .remove()
 }
 
+// Function to let the detail information of the clicked element appear
 function infoAppear (data) {
   let information = select('.information')
 
@@ -213,6 +216,7 @@ function tooltipOut (div) {
     .style('opacity', 0)
 }
 
+// Zoom function
 const zoomContainer = d3.select('.zoom-container')
 
 zoomContainer.call(zoom().on('zoom', () => {

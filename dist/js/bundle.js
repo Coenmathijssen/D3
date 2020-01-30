@@ -297,6 +297,7 @@
     .attr('class', 'tooltip')
     .style('opacity', 0);
 
+  // Init map
   setupMap();
   drawMap();
 
@@ -320,11 +321,13 @@
     });
   }
 
+  // Get category items and run functions which changes the category highlight and changes the query
+  // To the corresponding termmaster
   const categoryItems = document.getElementsByClassName('category');
   const categoryArray = ['13201', '5929', '14842', '14607', '14395'];
 
   for (let i = 0; i < categoryItems.length; i++) {
-    categoryItems[i].addEventListener('click', function () { changeCategory(categoryArray[i]); changeClass(i); });
+    categoryItems[i].addEventListener('click', () => { changeCategory(categoryArray[i]); changeClass(i); });
   }
 
   function changeCategory (termmaster) {
@@ -370,7 +373,6 @@ LIMIT 250`;
     for (let index = 0; index < categoryItems.length; index++) {
       categoryItems[index].classList.remove('active');
     }
-    console.log(categoryItems[i]);
     categoryItems[i].classList.add('active');
   }
 
@@ -399,7 +401,7 @@ LIMIT 250`;
       });
   }
 
-  // Render the data points
+  // Render the data points inside the map
   function render (selection, newData, div) {
     // Run function to append the item container to the svg
 
@@ -441,6 +443,7 @@ LIMIT 250`;
       .remove();
   }
 
+  // Function to let the detail information of the clicked element appear
   function infoAppear (data) {
     let information = d3.select('.information');
 
@@ -480,6 +483,7 @@ LIMIT 250`;
       .style('opacity', 0);
   }
 
+  // Zoom function
   const zoomContainer = d3.select('.zoom-container');
 
   zoomContainer.call(d3.zoom().on('zoom', () => {
