@@ -2,7 +2,7 @@
 ![project](https://user-images.githubusercontent.com/43337909/73401044-ad919080-42ea-11ea-8594-97f6953502e8.gif)
 
 # Het concept
-Bij het rad van fortuin is een schijf aanwezig met eeuwen (tussen bijv. jaartal 1900 en 1999). Daarnaast zijn er een aantal knoppen aanwezig waarmee een categorie gekozen kan worden. Met een spin gaat de schijf draaien en stopt deze op een willekeurige waarde. Vervolgens worden hier de bijpassende objecten voor opgehaald en geplaatst op de wereldkaart via GEO coördinaten. Om te voorkomen dat er alleen maar objecten op dezelfde plek wordt weergegeven, worden er maar 3 tot 5 items weeergegeven per continent. Ook is er een toggle aanwezig. Deze toggled om óf alle objecten te laten zien, óf alle objecten die al ooit tentoon zijn gesteld. Zo kan de gebruiker kiezen of hij objecten wil zien waar het museum trots op is of om te bekijken wat de enorme collectie allemaal te bieden heeft. De objecten kunnen vervolgens aangeklikt worden, om uitvergroot te worden tot een gerond vierkant met hierin informatie zoals de titel, een foto, het jaartal, de categorie en een mogelijke beschrijving van het object.
+Bij het rad van fortuin is een schijf aanwezig met eeuwen (tussen bijv. jaartal 1900 en 1999). Daarnaast zijn er een aantal knoppen aanwezig waarmee een categorie gekozen kan worden. Met een spin gaat de schijf draaien en stopt deze op een willekeurige waarde. Vervolgens worden hier de bijpassende objecten voor opgehaald en geplaatst op de wereldkaart via GEO coördinaten. Om te voorkomen dat er alleen maar objecten op dezelfde plek wordt weergegeven, worden er maar 3 tot 5 items weeergegeven per continent. Ook is er een toggle aanwezig. Deze toggled om óf alle objecten te laten zien, óf alle objecten die al ooit tentoon zijn gesteld. Zo kan de gebruiker kiezen of hij objecten wil zien waar het museum trots op is of om te bekijken wat de enorme collectie allemaal te bieden heeft. De objecten kunnen vervolgens aangeklikt worden, om uitvergroot te worden tot een gerond vierkant met hierin informatie zoals de titel, een foto, de categorie en een mogelijke beschrijving van het object.
 
 ### Waarom dit concept:
 - Dit concept past het beste bij de eisen van Rick. Ondanks dat dit niet nodig is, vind ik het wel leuk om aan de eisen van alle stakeholders te voldoen. Met dit concept is er én een presentatie van alle objecten binnen de collectie én is het interactief.
@@ -35,7 +35,7 @@ Bij het rad van fortuin is een schijf aanwezig met eeuwen (tussen bijv. jaartal 
 2. Maak een map aan waar je het project in wil hebben met `mkdir`
 3. Clone de repo met 
 <br></br>
-`https://github.com/Coenmathijssen/functional-programming.git`
+`https://github.com/Coenmathijssen/frontend-data.git`
 <br></br>
 4. Navigeer via je terminal naar de repo met `cd`. Installeer vervolgens de benodigde dependencies met
 <br></br>
@@ -57,6 +57,13 @@ De website live zetten kan via GitHub Pages.
 1. Maak een repository aan en zet daar de bundle.js, html en css bestanden in. 
 2. Ga naar instellingen (rechter tab in je repo).
 3. Scroll naar Github Pages en activeer dit.
+
+De website live zetten kan via Netlify.
+1. Ga naar https://www.netlify.com/ en login.
+2. Klik op de knop 'new site from git'.
+3. Koppel de Git repo aan je Netlify.
+4. Zet de directory op 'dist'.
+5. Druk op 'deploy site'.
 
 # De data
 ## Wat voor data?
